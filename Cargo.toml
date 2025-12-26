@@ -2,11 +2,13 @@
 members = [
     "programs/hand-registry",
     "programs/delegation",
-]
+    "programs/reputation",
+    "programs/hand-gate",
+    ]
 resolver = "2"
 
 [workspace.package]
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["HAND Protocol core"]
 license = "MIT"
