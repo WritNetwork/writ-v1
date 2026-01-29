@@ -1,0 +1,201 @@
+{
+  "version": "0.4.1",
+  "name": "reputation",
+  "instructions": [
+    {
+      "name": "initializeReputation",
+      "accounts": [
+        { "name": "payer", "isMut": true, "isSigner": true },
+        { "name": "hand", "isMut": false, "isSigner": false },
+        { "name": "reputation", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "clock", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "registerReporter",
+      "accounts": [
+        { "name": "protocolAuthority", "isMut": true, "isSigner": true },
+        { "name": "reporter", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "clock", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "reporterProgram", "type": "publicKey" }
+      ]
+    },
+    {
+      "name": "reportAction",
+      "accounts": [
+        { "name": "reporterAuthority", "isMut": false, "isSigner": true },
+        { "name": "reporter", "isMut": true, "isSigner": false },
+        { "name": "reputation", "isMut": true, "isSigner": false },
+        { "name": "clock", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "agent", "type": "publicKey" },
+        { "name": "success", "type": "bool" },
+        { "name": "volumeLamports", "type": "u64" }
+      ]
+    },
+    {
+      "name": "openDispute",
+      "accounts": [
+        { "name": "challenger", "isMut": true, "isSigner": true },
+        { "name": "delegation", "isMut": false, "isSigner": false },
+        { "name": "hand", "isMut": false, "isSigner": false },
+        { "name": "dispute", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "clock", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "agent", "type": "publicKey" },
+        { "name": "evidenceUri", "type": "string" },
+        { "name": "stakeLamports", "type": "u64" }
+      ]
+    },
+    {
+      "name": "resolveDispute",
+      "accounts": [
+        { "name": "protocolAuthority", "isMut": false, "isSigner": true },
+        { "name": "dispute", "isMut": true, "isSigner": false },
+        { "name": "reputation", "isMut": true, "isSigner": false },
+        { "name": "challenger", "isMut": true, "isSigner": false },
+        { "name": "clock", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "ruling", "type": { "defined": "DisputeStatus" } }
+      ]
+    },
+    {
+      "name": "recalculateScore",
+      "accounts": [
+        { "name": "reputation", "isMut": true, "isSigner": false },
+        { "name": "clock", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Reputation",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "hand", "type": "publicKey" },
+          { "name": "totalActions", "type": "u64" },
+          { "name": "successfulActions", "type": "u64" },
+          { "name": "totalVolumeLamports", "type": "u128" },
+          { "name": "disputesReceived", "type": "u16" },
+          { "name": "disputesLost", "type": "u16" },
+          { "name": "score", "type": "u32" },
+          { "name": "lastUpdated", "type": "i64" },
+          { "name": "createdAt", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Dispute",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "publicKey" },
+          { "name": "challenger", "type": "publicKey" },
+          { "name": "hand", "type": "publicKey" },
+          { "name": "evidenceUri", "type": "string" },
+          { "name": "stakeLamports", "type": "u64" },
+          { "name": "status", "type": { "defined": "DisputeStatus" } },
+          { "name": "createdAt", "type": "i64" },
+          { "name": "resolvedAt", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Reporter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "programId", "type": "publicKey" },
+          { "name": "authorizedBy", "type": "publicKey" },
+          { "name": "reportsSubmitted", "type": "u64" },
+          { "name": "registeredAt", "type": "i64" },
+          { "name": "active", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "DisputeStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Pending" },
+          { "name": "Upheld" },
+          { "name": "Rejected" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "ReputationInitialized",
+      "fields": [
+        { "name": "hand", "type": "publicKey", "index": true },
+        { "name": "initialScore", "type": "u32", "index": false }
+      ]
+    },
+    {
+      "name": "ActionReported",
+      "fields": [
+        { "name": "hand", "type": "publicKey", "index": true },
+        { "name": "success", "type": "bool", "index": false },
+        { "name": "volumeLamports", "type": "u64", "index": false }
+      ]
+    },
+    {
+      "name": "DisputeOpened",
+      "fields": [
+        { "name": "dispute", "type": "publicKey", "index": true },
+        { "name": "agent", "type": "publicKey", "index": true },
+        { "name": "challenger", "type": "publicKey", "index": false }
+      ]
+    },
+    {
+      "name": "DisputeResolved",
+      "fields": [
+        { "name": "dispute", "type": "publicKey", "index": true },
+        { "name": "ruling", "type": { "defined": "DisputeStatus" }, "index": false }
+      ]
+    },
+    {
+      "name": "ScoreRecalculated",
+      "fields": [
+        { "name": "hand", "type": "publicKey", "index": true },
+        { "name": "oldScore", "type": "u32", "index": false },
+        { "name": "newScore", "type": "u32", "index": false }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "HandNotActive", "msg": "The linked Hand is not active" },
+    { "code": 6001, "name": "ReputationAlreadyExists", "msg": "Reputation already initialized for this Hand" },
+    { "code": 6002, "name": "ReporterNotActive", "msg": "Reporter has been deactivated" },
+    { "code": 6003, "name": "UnauthorizedReporter", "msg": "Caller is not a registered reporter" },
+    { "code": 6004, "name": "DisputeAlreadyExists", "msg": "A dispute already exists for this agent-challenger pair" },
+    { "code": 6005, "name": "InsufficientStake", "msg": "Dispute stake below minimum requirement" },
+    { "code": 6006, "name": "DisputeNotPending", "msg": "Dispute has already been resolved" },
+    { "code": 6007, "name": "InvalidRuling", "msg": "Ruling must be Upheld or Rejected" },
+    { "code": 6008, "name": "UnauthorizedResolver", "msg": "Only protocol authority can resolve disputes" },
+    { "code": 6009, "name": "EvidenceUriTooLong", "msg": "Evidence URI exceeds maximum length" },
+    { "code": 6010, "name": "ReputationNotFound", "msg": "No reputation record found for this Hand" },
+    { "code": 6011, "name": "ClockError", "msg": "Failed to read clock sysvar" }
+  ],
+  "metadata": {
+    "address": "11111111111111111111111111111111"
+  }
+}
