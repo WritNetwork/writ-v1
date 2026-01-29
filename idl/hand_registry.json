@@ -1,0 +1,89 @@
+{
+  "version": "0.4.1",
+  "name": "hand_registry",
+  "instructions": [
+    {
+      "name": "initializeHand",
+      "accounts": [
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "hand", "isMut": true, "isSigner": false },
+        { "name": "nullifierRecord", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false },
+        { "name": "clock", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "proofA", "type": { "array": ["u8", 64] } },
+        { "name": "proofB", "type": { "array": ["u8", 128] } },
+        { "name": "proofC", "type": { "array": ["u8", 64] } },
+        { "name": "publicSignals", "type": { "vec": { "array": ["u8", 32] } } },
+        { "name": "nullifier", "type": { "array": ["u8", 32] } }
+      ]
+    },
+    {
+      "name": "revokeHand",
+      "accounts": [
+        { "name": "protocolAuthority", "isMut": false, "isSigner": true },
+        { "name": "hand", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Hand",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "publicKey" },
+          { "name": "nullifier", "type": { "array": ["u8", 32] } },
+          { "name": "mint", "type": "publicKey" },
+          { "name": "verifiedAt", "type": "i64" },
+          { "name": "delegationsCount", "type": "u8" },
+          { "name": "active", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "NullifierRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "nullifier", "type": { "array": ["u8", 32] } },
+          { "name": "createdAt", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "HandCreated",
+      "fields": [
+        { "name": "authority", "type": "publicKey", "index": true },
+        { "name": "hand", "type": "publicKey", "index": false },
+        { "name": "verifiedAt", "type": "i64", "index": false }
+      ]
+    },
+    {
+      "name": "HandRevoked",
+      "fields": [
+        { "name": "hand", "type": "publicKey", "index": true },
+        { "name": "revokedBy", "type": "publicKey", "index": false }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InvalidProof", "msg": "ZK proof verification failed" },
+    { "code": 6001, "name": "NullifierAlreadyUsed", "msg": "This identity source has already been registered" },
+    { "code": 6002, "name": "HandAlreadyExists", "msg": "This wallet already has a Hand" },
+    { "code": 6003, "name": "MaxDelegationsReached", "msg": "Maximum delegation count reached" },
+    { "code": 6004, "name": "UnauthorizedRevocation", "msg": "Only protocol authority can revoke" },
+    { "code": 6005, "name": "InvalidVerificationData", "msg": "Verification data is malformed" },
+    { "code": 6006, "name": "HandNotActive", "msg": "Hand has been revoked" },
+    { "code": 6007, "name": "ClockError", "msg": "Failed to read clock sysvar" }
+  ],
+  "metadata": {
+    "address": "11111111111111111111111111111111"
+  }
+}
