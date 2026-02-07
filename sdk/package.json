@@ -1,0 +1,52 @@
+{
+  "name": "@hand-protocol/sdk",
+  "version": "0.4.1",
+  "description": "TypeScript SDK for HAND Protocol — anonymous KYA on Solana",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "files": ["dist", "src", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["solana", "anchor", "identity", "zk-proofs", "ai-agents", "kya", "proof-of-human", "web3"],
+  "author": {
+    "name": "HAND Protocol core",
+    "url": "https://handprotocol.xyz"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hand-protocol/hand.git",
+    "directory": "sdk"
+  },
+  "homepage": "https://handprotocol.xyz",
+  "bugs": { "url": "https://github.com/hand-protocol/hand/issues" },
+  "engines": { "node": ">=18.0.0" },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.0",
+    "@solana/spl-token": "^0.4.0",
+    "bn.js": "^5.2.1",
+    "bs58": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.5",
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0"
+  }
+}
