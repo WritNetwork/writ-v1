@@ -89,3 +89,6 @@ pub fn check_reputation(
         successful_actions: reputation_account.successful_actions,
     })
 }
+
+/// Protocol version for compatibility checks
+pub const PROTOCOL_VERSION: u8 = 4;
