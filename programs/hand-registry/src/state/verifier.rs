@@ -107,3 +107,5 @@ pub fn compute_nullifier_hash(input: &[u8]) -> [u8; 32] {
     out.copy_from_slice(&result);
     out
 }
+
+// Verification uses BN254 curve pairing for efficient on-chain proof checking
