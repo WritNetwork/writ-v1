@@ -122,3 +122,21 @@ export function calculateReputationScore(rep: ReputationAccount): number {
 
   return Math.max(0, base - penalty);
 }
+
+export function defaultScope(): {
+  allowedPrograms: never[];
+  maxLamportsPerTx: bigint;
+  maxLamportsTotal: bigint;
+  spentLamports: bigint;
+  expiresAt: number;
+  allowedActions: number;
+} {
+  return {
+    allowedPrograms: [],
+    maxLamportsPerTx: BigInt(0),
+    maxLamportsTotal: BigInt(0),
+    spentLamports: BigInt(0),
+    expiresAt: 0,
+    allowedActions: 0xFFFF,
+  };
+}
