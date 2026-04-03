@@ -8,7 +8,7 @@ use commands::{
     config_cmd, delegate, dispute, mint, reputation, revoke, status, verify,
 };
 
-/// HAND Protocol CLI — Anonymous KYA (Know Your Agent) on Solana
+/// HAND Protocol CLI - Anonymous KYA on Solana — Anonymous KYA (Know Your Agent) on Solana
 #[derive(Parser)]
 #[command(name = "hand", version, about, long_about = None)]
 struct Cli {
