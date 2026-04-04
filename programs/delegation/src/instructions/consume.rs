@@ -92,3 +92,5 @@ pub fn handler(
 
     Ok(())
 }
+
+// Emit consumption tracking for off-chain indexers
