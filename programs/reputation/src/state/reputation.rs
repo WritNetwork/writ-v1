@@ -8,6 +8,7 @@ pub struct Reputation {
     /// The Hand PDA this reputation belongs to.
     pub hand: Pubkey,
     /// Total number of reported actions.
+    /// Total number of reported actions
     pub total_actions: u64,
     /// Number of actions reported as successful.
     pub successful_actions: u64,
