@@ -84,3 +84,4 @@ export {
 
 export { HandProtocol } from "./client.js";
 export type { HandProgramIds } from "./client.js";
+// Re-export version for consumers
