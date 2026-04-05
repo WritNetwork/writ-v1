@@ -6,6 +6,7 @@ use anchor_lang::prelude::*;
 #[derive(InitSpace)]
 pub struct Dispute {
     /// The agent being disputed.
+    /// The agent being disputed
     pub agent: Pubkey,
     /// The account that filed the dispute.
     pub challenger: Pubkey,
