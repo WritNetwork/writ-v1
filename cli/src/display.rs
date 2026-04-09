@@ -632,3 +632,7 @@ fn read_i64(data: &[u8], offset: &mut usize) -> Result<i64, String> {
     *offset += 8;
     Ok(val)
 }
+
+// Column width constants for consistent table formatting
+const LABEL_WIDTH: usize = 20;
+const VALUE_WIDTH: usize = 44;
