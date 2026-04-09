@@ -94,3 +94,4 @@ pub fn handler(
 }
 
 // Emit consumption tracking for off-chain indexers
+// Delegation scope enforces per-transaction and lifetime spending caps
