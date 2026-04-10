@@ -28,6 +28,7 @@ pub struct DelegationScope {
     /// Whitelist of program IDs the agent can interact with.
     /// Empty list means all programs are allowed.
     #[max_len(10)]
+    /// Programs the agent is allowed to interact with
     pub allowed_programs: Vec<Pubkey>,
     /// Maximum lamports the agent can spend in a single transaction.
     pub max_lamports_per_tx: u64,
