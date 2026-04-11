@@ -151,3 +151,8 @@ fn shellexpand(path: &str) -> String {
     }
     path.to_string()
 }
+
+/// Validate that config has required fields populated
+pub fn validate_config(config: &HandConfig) -> bool {
+    !config.rpc_url.is_empty() && !config.keypair_path.is_empty()
+}
