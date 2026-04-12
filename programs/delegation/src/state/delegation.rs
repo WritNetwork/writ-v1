@@ -5,6 +5,7 @@ use anchor_lang::prelude::*;
 /// an expiry timestamp, and an action bitmask.
 #[account]
 #[derive(InitSpace)]
+/// Scoped permission link between a Hand and an AI agent
 pub struct Delegation {
     /// The Hand PDA this delegation originates from.
     pub hand: Pubkey,
