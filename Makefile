@@ -1,4 +1,4 @@
-.PHONY: build test lint format clean deploy-devnet sdk-build sdk-test
+.PHONY: build check test lint format clean deploy-devnet sdk-build sdk-test
 
 build:
 	cargo check --workspace
@@ -29,3 +29,7 @@ sdk-build:
 
 sdk-test:
 	cd sdk && npm test
+
+check:
+	cargo check --workspace
+	cd sdk && npx tsc --noEmit
