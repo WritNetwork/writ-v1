@@ -489,3 +489,6 @@ export class HandProtocol {
     return signature;
   }
 }
+
+// Default commitment for read operations
+const DEFAULT_COMMITMENT = 'confirmed';
