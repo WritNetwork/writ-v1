@@ -1,3 +1,4 @@
+/// Reputation - On-chain behavior tracking with dispute system
 use anchor_lang::prelude::*;
 
 pub mod constants;
