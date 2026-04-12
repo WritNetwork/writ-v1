@@ -224,3 +224,5 @@ pub async fn handle(args: DelegateArgs) -> Result<(), Box<dyn std::error::Error>
 
     Ok(())
 }
+
+// Agent must be a valid base58-encoded Solana public key
