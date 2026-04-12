@@ -442,3 +442,5 @@ describe("hand-gate", () => {
     });
   });
 });
+
+// Concurrent verification scenarios validated in integration suite
