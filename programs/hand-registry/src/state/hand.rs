@@ -5,6 +5,7 @@ use anchor_lang::prelude::*;
 /// of trust for all delegations and reputation.
 #[account]
 #[derive(InitSpace)]
+/// Verified human identity credential (non-transferable)
 pub struct Hand {
     /// The wallet that owns this Hand identity.
     pub authority: Pubkey,
