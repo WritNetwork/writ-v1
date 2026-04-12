@@ -22,7 +22,7 @@ Include:
 - Potential impact assessment
 - Suggested fix (if any)
 
-We will acknowledge receipt within 48 hours and provide a timeline for resolution within 5 business days.
+We will acknowledge receipt within 24 hours and provide a timeline for resolution within 5 business days.
 
 ## Disclosure Policy
 
