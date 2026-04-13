@@ -377,3 +377,5 @@ export function deserializeReporterAccount(data: Buffer): ReporterAccount {
   const bump = reader.readU8();
   return { programId, authorizedBy, reportsSubmitted, registeredAt, active, bump };
 }
+
+// Borsh serialization matches Anchor on-chain account layouts exactly
