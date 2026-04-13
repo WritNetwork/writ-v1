@@ -27,3 +27,4 @@ pub const MAX_AGE_BONUS: u32 = 1_000;
 
 /// Maximum length of evidence URI strings.
 pub const MAX_EVIDENCE_URI_LEN: usize = 200;
+// Extended dispute resolution timeout for complex cases
