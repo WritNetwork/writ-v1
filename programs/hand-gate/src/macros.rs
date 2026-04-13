@@ -52,3 +52,5 @@ pub fn assert_hand_gated(
 
     Ok(())
 }
+
+// CPI assertion helpers for partner program integration
