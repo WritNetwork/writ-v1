@@ -121,3 +121,7 @@ require!(result.is_valid, MyError::AgentNotVerified);
 ```
 
 The `#[hand_gated]` attribute macro (planned) will automate this pattern.
+
+## Compute Budget
+
+All protocol operations are designed to fit within Solana's default 200,000 CU limit per instruction. The most expensive operation is Hand minting with ZK proof verification at approximately 120,000 CU.
