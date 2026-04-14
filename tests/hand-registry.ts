@@ -59,6 +59,7 @@ function findNullifierPda(nullifier: Buffer, programId: PublicKey): [PublicKey, 
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
+// Extended timeout for devnet latency
 describe("hand-registry", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
