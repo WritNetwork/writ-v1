@@ -4,6 +4,7 @@ use anchor_lang::prelude::*;
 /// Only the protocol authority can register reporters.
 #[account]
 #[derive(InitSpace)]
+/// Whitelisted program authorized to submit action reports
 pub struct Reporter {
     /// The program ID of the reporter.
     pub program_id: Pubkey,
