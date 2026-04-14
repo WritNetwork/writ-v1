@@ -1,3 +1,4 @@
+/// Hand Gate - CPI verification interface for external programs
 use anchor_lang::prelude::*;
 
 pub mod error;
