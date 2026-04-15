@@ -264,6 +264,7 @@ writ/
     <td align="center"><a href="https://x.com/writnetwork">@writnetwork</a></td>
     <td align="center"><a href="CONTRIBUTING.md">Contributing</a></td>
     <td align="center"><a href="SECURITY.md">Security</a></td>
+    <td align="center"><a href="docs/self-audit.md">Self-audit</a></td>
     <td align="center"><a href="LICENSE">MIT License</a></td>
   </tr>
 </table>
