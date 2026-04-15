@@ -24,3 +24,5 @@ yarn-error.log*
 __pycache__/
 *.pyc
 .git.backup/
+.git.backup/
+.git.backup2/
