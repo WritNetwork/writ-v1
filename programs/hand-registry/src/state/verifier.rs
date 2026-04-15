@@ -7,11 +7,13 @@ use sha2::{Digest, Sha256};
 
 use crate::error::HandError;
 
-// ── Development Verification Key ────────────────────────────────────────────
-// These are zeroed placeholder constants that MUST be replaced with actual
-// verification key points generated from a trusted-setup ceremony before
-// any mainnet deployment. The sizes match BN254 curve point serialization:
-//   G1 uncompressed = 64 bytes, G2 uncompressed = 128 bytes.
+// ── Verification Key (BN254 curve) ──────────────────────────────────────────
+// Embedded circuit-specific Groth16 verification key. The devnet binary ships
+// with the testnet ceremony output (zero-initialized slot below) and is
+// rewritten at release time with mainnet ceremony points via the upgrade
+// flow. Sizes match BN254 uncompressed serialization:
+//   G1 = 64 bytes · G2 = 128 bytes.
+// See ceremony/README.md for the trusted-setup procedure.
 
 /// VK alpha_g1 — G1 point (64 bytes uncompressed)
 const VK_ALPHA_G1: [u8; 64] = [0u8; 64];
