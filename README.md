@@ -85,24 +85,26 @@ Four on-chain programs form a layered verification stack. External protocols onl
 </table>
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#0a0a0a','primaryTextColor':'#e8e8e8','primaryBorderColor':'#c8ff00','lineColor':'#888888','edgeLabelBackground':'#050505','tertiaryColor':'#050505'}}}%%
 flowchart TD
-    ext["external protocol<br/>(liquidity pool, lending, airdrop)"]
+    ext["external protocol<br/>liquidity pool, lending, airdrop"]
     gate["L4 · writ_gate<br/>returns AgentStatus in one CPI"]
     del["L2 · delegation<br/>scope, budget, expiry"]
     rep["L3 · reputation<br/>score, age, disputes"]
     reg["L1 · writ_registry<br/>ZK verify, SBT, nullifier"]
 
-    ext -->|"CPI: verify_agent"| gate
-    gate -->|read PDA| del
-    gate -->|read PDA| rep
-    gate -->|read PDA| reg
-    del -.->|requires Hand| reg
-    rep -.->|keyed by Hand| reg
+    ext -->|CPI verify_agent| gate
+    gate --> del
+    gate --> rep
+    gate --> reg
+    del -.->|requires Writ| reg
+    rep -.->|keyed by Writ| reg
 
-    classDef layer fill:#0a0a0a,stroke:#c8ff00,stroke-width:1px,color:#e8e8e8
-    classDef root fill:#0a0a0a,stroke:#888,stroke-width:1px,color:#e8e8e8
+    classDef layer fill:#0a0a0a,stroke:#c8ff00,stroke-width:1.5px,color:#e8e8e8
+    classDef root fill:#0a0a0a,stroke:#555555,stroke-width:1px,color:#e8e8e8
     class gate,del,rep layer
     class reg,ext root
+    linkStyle default stroke:#888888,color:#e8e8e8
 ```
 
 ### Design properties
