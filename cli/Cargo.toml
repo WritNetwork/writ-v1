@@ -1,6 +1,6 @@
 [package]
 name = "hand-cli"
-description = "Command-line interface for HAND Protocol"
+description = "Command-line interface for WRIT Protocol"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

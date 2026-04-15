@@ -37,7 +37,7 @@ pub async fn handle(args: MintArgs) -> Result<(), Box<dyn std::error::Error>> {
     let config = load_config()?;
     let keypair = load_keypair(&config)?;
     let rpc = RpcClient::new(&config.rpc_url);
-    let registry_id = config.program_ids.hand_registry_pubkey()?;
+    let registry_id = config.program_ids.writ_registry_pubkey()?;
 
     // Read and parse proof file
     let proof_json = std::fs::read_to_string(&args.proof_file).map_err(|e| {

@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import {
-  HandAccount,
+  WritAccount,
   DelegationAccount,
   DelegationScope,
   ReputationAccount,
@@ -12,7 +12,7 @@ import {
   UpdateScopeParams,
   ConsumeParams,
   DisputeParams,
-  MintHandParams,
+  MintWritParams,
 } from "./types.js";
 
 /* ------------------------------------------------------------------ */
@@ -212,7 +212,7 @@ class BufferReader {
 /*  Instruction serialization                                          */
 /* ------------------------------------------------------------------ */
 
-export function serializeMintHandIx(params: MintHandParams): Buffer {
+export function serializeMintWritIx(params: MintWritParams): Buffer {
   const disc = anchorDiscriminator("mint_hand");
   const w = new BufferWriter();
   w.writeFixedBytes(disc);
@@ -275,7 +275,7 @@ export function serializeOpenDisputeIx(params: DisputeParams): Buffer {
 /*  Account deserialization                                            */
 /* ------------------------------------------------------------------ */
 
-export function deserializeHandAccount(data: Buffer): HandAccount {
+export function deserializeWritAccount(data: Buffer): WritAccount {
   const reader = new BufferReader(data);
   reader.skip(8); // discriminator
   const authority = reader.readPubkey();

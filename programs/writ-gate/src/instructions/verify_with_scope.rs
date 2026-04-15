@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
 use delegation::state::delegation::Delegation;
-use hand_registry::state::hand::Hand;
+use writ_registry::state::hand::Hand;
 
 use crate::error::GateError;
 use crate::verify::{check_delegation, check_hand};
@@ -18,7 +18,7 @@ pub struct VerifyAgentWithScope<'info> {
 
     /// The delegation linking the Hand to this agent.
     #[account(
-        constraint = delegation.hand == hand.key() @ GateError::DelegationHandMismatch,
+        constraint = delegation.hand == hand.key() @ GateError::DelegationWritMismatch,
         constraint = delegation.agent == agent.key() @ GateError::DelegationAgentMismatch,
     )]
     pub delegation: Account<'info, Delegation>,

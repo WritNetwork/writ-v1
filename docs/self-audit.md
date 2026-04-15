@@ -6,10 +6,10 @@ Internal review checklist for the WRIT Protocol smart contracts. This document c
 
 Programs covered:
 
-- `programs/hand-registry` — L1 root of trust
+- `programs/writ-registry` — L1 root of trust
 - `programs/delegation`    — L2 scoped permissions
 - `programs/reputation`    — L3 behavior scoring
-- `programs/hand-gate`     — L4 verification CPI surface
+- `programs/writ-gate`     — L4 verification CPI surface
 
 Commit reviewed: see `CHANGELOG.md` for per-release tags.
 
@@ -18,7 +18,7 @@ Commit reviewed: see `CHANGELOG.md` for per-release tags.
 ### Access control
 
 - [x] Every mutable instruction validates the `Signer` account matches the authority field on the PDA.
-- [x] `hand-registry::revoke` requires the wallet to own the Hand account (checked against `hand.owner`).
+- [x] `writ-registry::revoke` requires the wallet to own the Hand account (checked against `hand.owner`).
 - [x] `delegation::revoke_delegation` requires the delegator or emergency_guardian to sign.
 - [x] `reputation::dispute` requires the dispute opener to stake SOL upfront.
 - [x] No instruction allows a third party to mutate another user's state without explicit consent.
@@ -27,7 +27,7 @@ Commit reviewed: see `CHANGELOG.md` for per-release tags.
 
 - [x] All `#[account(seeds = [...], bump)]` constraints include the full seed set.
 - [x] PDA bumps are stored at creation and re-verified on every mutation.
-- [x] Cross-program PDA lookups in `hand_gate` use `try_from_unchecked` + explicit owner and discriminator checks.
+- [x] Cross-program PDA lookups in `writ_gate` use `try_from_unchecked` + explicit owner and discriminator checks.
 - [x] `AccountInfo::owner` is verified before deserializing any externally-provided account.
 
 ### Arithmetic
@@ -39,8 +39,8 @@ Commit reviewed: see `CHANGELOG.md` for per-release tags.
 
 ### CPI safety
 
-- [x] `hand_gate::verify_agent` is a read-only CPI; it returns `AgentStatus` and never mutates PDAs across the call.
-- [x] `hand_gate::verify_and_record` is the explicit mutating variant; it requires the caller to hold write authority on the delegation PDA.
+- [x] `writ_gate::verify_agent` is a read-only CPI; it returns `AgentStatus` and never mutates PDAs across the call.
+- [x] `writ_gate::verify_and_record` is the explicit mutating variant; it requires the caller to hold write authority on the delegation PDA.
 - [x] No CPI is invoked with unsanitized caller-provided instruction data.
 
 ### Re-entrancy & concurrency

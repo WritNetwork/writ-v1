@@ -43,7 +43,7 @@ function computeNullifierHash(input: Buffer): Buffer {
   return hasher.digest();
 }
 
-function findHandPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     programId,
@@ -60,11 +60,11 @@ function findNullifierPda(nullifier: Buffer, programId: PublicKey): [PublicKey, 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 // Extended timeout for devnet latency
-describe("hand-registry", () => {
+describe("writ-registry", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.HandRegistry as Program;
+  const program = anchor.workspace.WritRegistry as Program;
   const authority = provider.wallet as anchor.Wallet;
 
   describe("initialize_hand", () => {
@@ -73,7 +73,7 @@ describe("hand-registry", () => {
       const nullifier = randomBytes(32);
       const nullifierHash = computeNullifierHash(nullifier);
 
-      const [handPda] = findHandPda(authority.publicKey, program.programId);
+      const [writPda] = findWritPda(authority.publicKey, program.programId);
       const [nullifierPda] = findNullifierPda(nullifier, program.programId);
 
       await program.methods
@@ -86,7 +86,7 @@ describe("hand-registry", () => {
         )
         .accounts({
           authority: authority.publicKey,
-          hand: handPda,
+          hand: writPda,
           nullifierRecord: nullifierPda,
           systemProgram: SystemProgram.programId,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -94,7 +94,7 @@ describe("hand-registry", () => {
         .rpc();
 
       // Fetch the Hand account and verify its fields
-      const handAccount = await program.account.hand.fetch(handPda);
+      const handAccount = await program.account.hand.fetch(writPda);
 
       assert.isTrue(handAccount.active, "Hand should be active after creation");
       assert.equal(
@@ -149,7 +149,7 @@ describe("hand-registry", () => {
       // We need to produce it the same way — generate and save in a shared scope.
       // For isolation, we create + consume a nullifier here, then try again.
       const nullifier = randomBytes(32);
-      const [handPda1] = findHandPda(authority2.publicKey, program.programId);
+      const [writPda1] = findWritPda(authority2.publicKey, program.programId);
       const [nullifierPda] = findNullifierPda(nullifier, program.programId);
 
       // First usage should succeed
@@ -163,7 +163,7 @@ describe("hand-registry", () => {
         )
         .accounts({
           authority: authority2.publicKey,
-          hand: handPda1,
+          hand: writPda1,
           nullifierRecord: nullifierPda,
           systemProgram: SystemProgram.programId,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -180,7 +180,7 @@ describe("hand-registry", () => {
       );
       await provider.connection.confirmTransaction(airdropSig);
 
-      const [handPda2] = findHandPda(authority3.publicKey, program.programId);
+      const [writPda2] = findWritPda(authority3.publicKey, program.programId);
 
       try {
         await program.methods
@@ -193,7 +193,7 @@ describe("hand-registry", () => {
           )
           .accounts({
             authority: authority3.publicKey,
-            hand: handPda2,
+            hand: writPda2,
             nullifierRecord: nullifierPda,
             systemProgram: SystemProgram.programId,
             clock: SYSVAR_CLOCK_PUBKEY,
@@ -212,7 +212,7 @@ describe("hand-registry", () => {
 
   describe("revoke_hand", () => {
     let handOwner: Keypair;
-    let handPda: PublicKey;
+    let writPda: PublicKey;
 
     before(async () => {
       handOwner = Keypair.generate();
@@ -225,7 +225,7 @@ describe("hand-registry", () => {
       const { proofA, proofB, proofC, publicSignals } = generateMockProof();
       const nullifier = randomBytes(32);
 
-      [handPda] = findHandPda(handOwner.publicKey, program.programId);
+      [writPda] = findWritPda(handOwner.publicKey, program.programId);
       const [nullifierPda] = findNullifierPda(nullifier, program.programId);
 
       await program.methods
@@ -238,7 +238,7 @@ describe("hand-registry", () => {
         )
         .accounts({
           authority: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           nullifierRecord: nullifierPda,
           systemProgram: SystemProgram.programId,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -253,12 +253,12 @@ describe("hand-registry", () => {
         .revokeHand()
         .accounts({
           protocolAuthority: provider.wallet.publicKey,
-          hand: handPda,
+          hand: writPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
         .rpc();
 
-      const handAccount = await program.account.hand.fetch(handPda);
+      const handAccount = await program.account.hand.fetch(writPda);
       assert.isFalse(handAccount.active, "Hand must be inactive after revocation");
     });
 
@@ -273,7 +273,7 @@ describe("hand-registry", () => {
 
       const { proofA, proofB, proofC, publicSignals } = generateMockProof();
       const nullifier = randomBytes(32);
-      const [victimHandPda] = findHandPda(victim.publicKey, program.programId);
+      const [victimWritPda] = findWritPda(victim.publicKey, program.programId);
       const [nullifierPda] = findNullifierPda(nullifier, program.programId);
 
       await program.methods
@@ -286,7 +286,7 @@ describe("hand-registry", () => {
         )
         .accounts({
           authority: victim.publicKey,
-          hand: victimHandPda,
+          hand: victimWritPda,
           nullifierRecord: nullifierPda,
           systemProgram: SystemProgram.programId,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -307,7 +307,7 @@ describe("hand-registry", () => {
           .revokeHand()
           .accounts({
             protocolAuthority: imposter.publicKey,
-            hand: victimHandPda,
+            hand: victimWritPda,
             clock: SYSVAR_CLOCK_PUBKEY,
           })
           .signers([imposter])

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 #[error_code]
-pub enum HandError {
+pub enum WritError {
     #[msg("The ZK proof failed verification")]
     InvalidProof,
 
@@ -9,7 +9,7 @@ pub enum HandError {
     NullifierAlreadyUsed,
 
     #[msg("A Hand identity already exists for this authority")]
-    HandAlreadyExists,
+    WritAlreadyExists,
 
     #[msg("Maximum number of delegations reached for this Hand")]
     MaxDelegationsReached,
@@ -21,7 +21,7 @@ pub enum HandError {
     InvalidVerificationData,
 
     #[msg("This Hand identity is not active")]
-    HandNotActive,
+    WritNotActive,
 
     #[msg("Failed to read the on-chain clock")]
     ClockError,

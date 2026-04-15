@@ -26,28 +26,28 @@ pub enum ConfigError {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProgramIds {
-    pub hand_registry: String,
+    pub writ_registry: String,
     pub delegation: String,
     pub reputation: String,
-    pub hand_gate: String,
+    pub writ_gate: String,
 }
 
 impl Default for ProgramIds {
     fn default() -> Self {
         Self {
-            hand_registry: "HANDreg1111111111111111111111111111111111111".to_string(),
+            writ_registry: "HANDreg1111111111111111111111111111111111111".to_string(),
             delegation: "HANDde1e111111111111111111111111111111111111".to_string(),
             reputation: "HANDrep1111111111111111111111111111111111111".to_string(),
-            hand_gate: "HANDgate111111111111111111111111111111111111".to_string(),
+            writ_gate: "HANDgate111111111111111111111111111111111111".to_string(),
         }
     }
 }
 
 impl ProgramIds {
-    pub fn hand_registry_pubkey(&self) -> Result<Pubkey, ConfigError> {
-        self.hand_registry
+    pub fn writ_registry_pubkey(&self) -> Result<Pubkey, ConfigError> {
+        self.writ_registry
             .parse::<Pubkey>()
-            .map_err(|e| ConfigError::InvalidProgramId(self.hand_registry.clone(), e.to_string()))
+            .map_err(|e| ConfigError::InvalidProgramId(self.writ_registry.clone(), e.to_string()))
     }
 
     pub fn delegation_pubkey(&self) -> Result<Pubkey, ConfigError> {
@@ -62,22 +62,22 @@ impl ProgramIds {
             .map_err(|e| ConfigError::InvalidProgramId(self.reputation.clone(), e.to_string()))
     }
 
-    pub fn hand_gate_pubkey(&self) -> Result<Pubkey, ConfigError> {
-        self.hand_gate
+    pub fn writ_gate_pubkey(&self) -> Result<Pubkey, ConfigError> {
+        self.writ_gate
             .parse::<Pubkey>()
-            .map_err(|e| ConfigError::InvalidProgramId(self.hand_gate.clone(), e.to_string()))
+            .map_err(|e| ConfigError::InvalidProgramId(self.writ_gate.clone(), e.to_string()))
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct HandConfig {
+pub struct WritConfig {
     pub rpc_url: String,
     pub keypair_path: String,
     pub network: String,
     pub program_ids: ProgramIds,
 }
 
-impl Default for HandConfig {
+impl Default for WritConfig {
     fn default() -> Self {
         let default_keypair = dirs::home_dir()
             .map(|h| h.join(".config/solana/id.json").to_string_lossy().to_string())
@@ -101,11 +101,11 @@ fn config_path() -> Result<PathBuf, ConfigError> {
     Ok(config_dir()?.join("config.toml"))
 }
 
-pub fn load_config() -> Result<HandConfig, ConfigError> {
+pub fn load_config() -> Result<WritConfig, ConfigError> {
     let path = config_path()?;
 
     if !path.exists() {
-        let config = HandConfig::default();
+        let config = WritConfig::default();
         save_config(&config)?;
         return Ok(config);
     }
@@ -117,13 +117,13 @@ pub fn load_config() -> Result<HandConfig, ConfigError> {
         .parse::<toml_edit::DocumentMut>()
         .map_err(|e| ConfigError::ParseError(e.to_string()))?;
 
-    let config: HandConfig = toml_edit::de::from_document(doc)
+    let config: WritConfig = toml_edit::de::from_document(doc)
         .map_err(|e| ConfigError::ParseError(e.to_string()))?;
 
     Ok(config)
 }
 
-pub fn save_config(config: &HandConfig) -> Result<(), ConfigError> {
+pub fn save_config(config: &WritConfig) -> Result<(), ConfigError> {
     let dir = config_dir()?;
     fs::create_dir_all(&dir)?;
 
@@ -134,7 +134,7 @@ pub fn save_config(config: &HandConfig) -> Result<(), ConfigError> {
     Ok(())
 }
 
-pub fn load_keypair(config: &HandConfig) -> Result<Keypair, ConfigError> {
+pub fn load_keypair(config: &WritConfig) -> Result<Keypair, ConfigError> {
     let path = shellexpand(&config.keypair_path);
     read_keypair_file(&path).map_err(|e| ConfigError::KeypairError {
         path: path.clone(),
@@ -153,6 +153,6 @@ fn shellexpand(path: &str) -> String {
 }
 
 /// Validate that config has required fields populated
-pub fn validate_config(config: &HandConfig) -> bool {
+pub fn validate_config(config: &WritConfig) -> bool {
     !config.rpc_url.is_empty() && !config.keypair_path.is_empty()
 }

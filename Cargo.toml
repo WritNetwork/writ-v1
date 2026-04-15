@@ -1,9 +1,9 @@
 [workspace]
 members = [
-    "programs/hand-registry",
+    "programs/writ-registry",
     "programs/delegation",
     "programs/reputation",
-    "programs/hand-gate",
+    "programs/writ-gate",
     "cli",
 ]
 resolver = "2"
@@ -11,10 +11,10 @@ resolver = "2"
 [workspace.package]
 version = "0.4.1"
 edition = "2021"
-authors = ["HAND Protocol core"]
+authors = ["WRIT Protocol core"]
 license = "MIT"
 repository = "https://github.com/WritNetwork/writ"
-homepage = "https://handprotocol.xyz"
+homepage = "https://writ.network"
 readme = "README.md"
 rust-version = "1.78"
 description = "Anonymous KYA (Know Your Agent) protocol on Solana — ZK human verification and scoped agent delegation"

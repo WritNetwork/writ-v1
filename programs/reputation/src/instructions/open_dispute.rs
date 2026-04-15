@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
-use hand_registry::state::hand::Hand;
+use writ_registry::state::hand::Hand;
 
 use crate::constants::{DISPUTE_SEED, DISPUTE_STAKE_LAMPORTS, MAX_EVIDENCE_URI_LEN, REPUTATION_SEED};
 use crate::error::ReputationError;

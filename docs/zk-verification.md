@@ -1,6 +1,6 @@
 # ZK Verification
 
-HAND Protocol uses Groth16 zero-knowledge proofs on the BN254 curve to verify human identity without exposing any identifying information on-chain.
+WRIT Protocol uses Groth16 zero-knowledge proofs on the BN254 curve to verify human identity without exposing any identifying information on-chain.
 
 ## Why ZK
 
@@ -103,7 +103,7 @@ The nullifier is stored in a NullifierRecord PDA. Before minting a new Hand, the
 | Worldcoin | Iris hash | Theoretically possible | Orb required |
 | VeryAI | Palm biometric hash | Theoretically possible | Camera required |
 | Humanity Protocol | Palm hash | Theoretically possible | Camera required |
-| HAND Protocol | Nullifier only | Computationally infeasible | None |
+| WRIT Protocol | Nullifier only | Computationally infeasible | None |
 
 ## Proof Generation (Client-Side)
 

@@ -10,7 +10,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in HAND Protocol, report it responsibly.
+If you discover a security vulnerability in WRIT Protocol, report it responsibly.
 
 **Do not open a public issue.**
 

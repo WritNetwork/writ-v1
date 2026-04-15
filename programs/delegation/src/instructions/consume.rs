@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
-use hand_registry::state::hand::Hand;
+use writ_registry::state::hand::Hand;
 
 use crate::constants::DELEGATION_SEED;
 use crate::error::DelegationError;
@@ -15,7 +15,7 @@ pub struct Consume<'info> {
 
     /// The Hand identity backing this delegation (read-only validation).
     #[account(
-        constraint = hand.active @ DelegationError::HandNotActive,
+        constraint = hand.active @ DelegationError::WritNotActive,
     )]
     pub hand: Account<'info, Hand>,
 
@@ -42,7 +42,7 @@ pub fn handler(
     program_id: Pubkey,
 ) -> Result<()> {
     let clock = Clock::from_account_info(&ctx.accounts.clock)
-        .map_err(|_| error!(DelegationError::HandNotActive))?;
+        .map_err(|_| error!(DelegationError::WritNotActive))?;
     let now = clock.unix_timestamp;
 
     let delegation = &mut ctx.accounts.delegation;

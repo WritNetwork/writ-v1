@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use delegation::state::delegation::Delegation;
-use hand_registry::state::hand::Hand;
+use writ_registry::state::hand::Hand;
 use reputation::state::reputation::Reputation;
 
 use crate::error::GateError;
@@ -20,7 +20,7 @@ pub struct DelegationData {
 }
 
 /// Deserialized + validated Hand data.
-pub struct HandData {
+pub struct WritData {
     pub authority: Pubkey,
     pub verified_at: i64,
     pub active: bool,
@@ -63,10 +63,10 @@ pub fn check_delegation(
 
 /// Deserialize and validate a Hand account.
 /// Checks that the Hand is active.
-pub fn check_hand(hand_account: &Account<Hand>) -> Result<HandData> {
-    require!(hand_account.active, GateError::HandNotActive);
+pub fn check_hand(hand_account: &Account<Writ>) -> Result<WritData> {
+    require!(hand_account.active, GateError::WritNotActive);
 
-    Ok(HandData {
+    Ok(WritData {
         authority: hand_account.authority,
         verified_at: hand_account.verified_at,
         active: hand_account.active,

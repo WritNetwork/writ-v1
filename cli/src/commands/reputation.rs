@@ -45,7 +45,7 @@ pub async fn handle(args: ReputationArgs) -> Result<(), Box<dyn std::error::Erro
 async fn handle_view(wallet_str: &str) -> Result<(), Box<dyn std::error::Error>> {
     let config = load_config()?;
     let rpc = RpcClient::new(&config.rpc_url);
-    let registry_id = config.program_ids.hand_registry_pubkey()?;
+    let registry_id = config.program_ids.writ_registry_pubkey()?;
     let reputation_id = config.program_ids.reputation_pubkey()?;
 
     let wallet: Pubkey = wallet_str
@@ -77,7 +77,7 @@ async fn handle_recalculate(wallet_str: &str) -> Result<(), Box<dyn std::error::
     let config = load_config()?;
     let keypair = load_keypair(&config)?;
     let rpc = RpcClient::new(&config.rpc_url);
-    let registry_id = config.program_ids.hand_registry_pubkey()?;
+    let registry_id = config.program_ids.writ_registry_pubkey()?;
     let reputation_id = config.program_ids.reputation_pubkey()?;
 
     let wallet: Pubkey = wallet_str

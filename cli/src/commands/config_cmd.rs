@@ -1,7 +1,7 @@
 use clap::{Args, Subcommand};
 use colored::Colorize;
 
-use crate::config::{load_config, save_config, HandConfig};
+use crate::config::{load_config, save_config, WritConfig};
 
 /// Configure CLI settings
 #[derive(Args)]
@@ -109,7 +109,7 @@ fn handle_show() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn handle_init() -> Result<(), Box<dyn std::error::Error>> {
-    let config = HandConfig::default();
+    let config = WritConfig::default();
     save_config(&config)?;
     println!();
     println!(
@@ -120,7 +120,7 @@ fn handle_init() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn print_config(config: &HandConfig) {
+fn print_config(config: &WritConfig) {
     println!();
     println!("{}", "  ┌─────────────────────────────────────────────┐".cyan());
     println!(
@@ -158,7 +158,7 @@ fn print_config(config: &HandConfig) {
         "{}    {:<16} {}",
         "  │".cyan(),
         "Registry:".dimmed(),
-        config.program_ids.hand_registry
+        config.program_ids.writ_registry
     );
     println!(
         "{}    {:<16} {}",
@@ -176,7 +176,7 @@ fn print_config(config: &HandConfig) {
         "{}    {:<16} {}",
         "  │".cyan(),
         "Hand Gate:".dimmed(),
-        config.program_ids.hand_gate
+        config.program_ids.writ_gate
     );
     println!("{}", "  └─────────────────────────────────────────────┘".cyan());
     println!();

@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
-use hand_registry::constants::MAX_DELEGATIONS;
-use hand_registry::state::hand::Hand;
+use writ_registry::constants::MAX_DELEGATIONS;
+use writ_registry::state::hand::Hand;
 
 use crate::constants::DELEGATION_SEED;
 use crate::error::DelegationError;
@@ -19,7 +19,7 @@ pub struct CreateDelegation<'info> {
     #[account(
         mut,
         constraint = hand.authority == hand_owner.key() @ DelegationError::UnauthorizedCaller,
-        constraint = hand.active @ DelegationError::HandNotActive,
+        constraint = hand.active @ DelegationError::WritNotActive,
         constraint = // Validate delegation count before incrementing
         hand.delegations_count < MAX_DELEGATIONS @ DelegationError::TooManyDelegations,
     )]
@@ -58,7 +58,7 @@ pub fn handler(ctx: Context<CreateDelegation>, scope: DelegationScope) -> Result
     );
 
     let clock = Clock::from_account_info(&ctx.accounts.clock)
-        .map_err(|_| error!(DelegationError::HandNotVerified))?;
+        .map_err(|_| error!(DelegationError::WritNotVerified))?;
     let now = clock.unix_timestamp;
 
     // Initialize delegation

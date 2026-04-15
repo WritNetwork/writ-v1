@@ -46,7 +46,7 @@ function loadKeypair(): Keypair {
   return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(raw)));
 }
 
-function findHandPda(authority: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     HAND_REGISTRY_PROGRAM_ID,
@@ -78,13 +78,13 @@ async function main() {
   console.log("Hand owner:", payer.publicKey.toBase58());
   console.log("Agent:     ", agentPubkey.toBase58());
 
-  // 1. Find the Hand PDA — must already exist (minted via mint-hand.ts)
-  const [handPda] = findHandPda(payer.publicKey);
-  console.log("Hand PDA:  ", handPda.toBase58());
+  // 1. Find the Hand PDA — must already exist (minted via mint-writ.ts)
+  const [writPda] = findWritPda(payer.publicKey);
+  console.log("Hand PDA:  ", writPda.toBase58());
 
   // Verify the Hand exists and is active
-  const registryProgram = anchor.workspace.HandRegistry as Program;
-  const handAccount = await registryProgram.account.hand.fetch(handPda);
+  const registryProgram = anchor.workspace.WritRegistry as Program;
+  const handAccount = await registryProgram.account.hand.fetch(writPda);
 
   if (!handAccount.active) {
     console.error("Hand is not active. Cannot delegate.");
@@ -112,7 +112,7 @@ async function main() {
   };
 
   // 3. Derive the delegation PDA
-  const [delegationPda] = findDelegationPda(handPda, agentPubkey);
+  const [delegationPda] = findDelegationPda(writPda, agentPubkey);
   console.log("Delegation PDA:", delegationPda.toBase58());
 
   // 4. Build and send the delegate transaction
@@ -124,7 +124,7 @@ async function main() {
     .delegate(scope)
     .accounts({
       handOwner: payer.publicKey,
-      hand: handPda,
+      hand: writPda,
       agent: agentPubkey,
       delegation: delegationPda,
       systemProgram: SystemProgram.programId,

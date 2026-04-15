@@ -1,5 +1,5 @@
 /**
- * mint-hand.ts — Standalone script demonstrating how to mint a HAND identity.
+ * mint-writ.ts — Standalone script demonstrating how to mint a HAND identity.
  *
  * This script walks through the full flow:
  *   1. Load or generate a Solana keypair
@@ -9,7 +9,7 @@
  *   5. Read back and display the on-chain Hand account
  *
  * Usage:
- *   npx ts-node examples/mint-hand.ts
+ *   npx ts-node examples/mint-writ.ts
  *
  * Requires a funded devnet wallet at ~/.config/solana/id.json
  * or set SOLANA_KEYPAIR_PATH env variable.
@@ -53,7 +53,7 @@ function loadKeypair(): Keypair {
 
 // ── PDA Derivation ─────────────────────────────────────────────────────────
 
-function findHandPda(authority: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     HAND_REGISTRY_PROGRAM_ID,
@@ -132,15 +132,15 @@ async function main() {
   console.log("Nullifier hash:", nullifierHash.toString("hex"));
 
   // 3. Derive PDAs
-  const [handPda, handBump] = findHandPda(payer.publicKey);
+  const [writPda, writBump] = findWritPda(payer.publicKey);
   const [nullifierPda, nullifierBump] = findNullifierPda(nullifier);
 
-  console.log("Hand PDA:", handPda.toBase58());
+  console.log("Hand PDA:", writPda.toBase58());
   console.log("Nullifier PDA:", nullifierPda.toBase58());
 
   // 4. Load the program IDL and create the program interface
   // In a real deployment, fetch the IDL from chain or import it statically
-  const program = anchor.workspace.HandRegistry as Program;
+  const program = anchor.workspace.WritRegistry as Program;
 
   // 5. Build and send the initialize_hand transaction
   console.log("\nSending initialize_hand transaction...");
@@ -155,7 +155,7 @@ async function main() {
     )
     .accounts({
       authority: payer.publicKey,
-      hand: handPda,
+      hand: writPda,
       nullifierRecord: nullifierPda,
       systemProgram: SystemProgram.programId,
       clock: SYSVAR_CLOCK_PUBKEY,
@@ -168,7 +168,7 @@ async function main() {
   );
 
   // 6. Read back the Hand account and display its contents
-  const handAccount = await program.account.hand.fetch(handPda);
+  const handAccount = await program.account.hand.fetch(writPda);
 
   console.log("\n--- HAND Identity Created ---");
   console.log("  Authority:         ", handAccount.authority.toBase58());
@@ -177,7 +177,7 @@ async function main() {
   console.log("  Delegations count: ", handAccount.delegationsCount);
   console.log("  Nullifier (hex):   ", Buffer.from(handAccount.nullifier as number[]).toString("hex"));
   console.log("  Bump:              ", handAccount.bump);
-  console.log("  Hand PDA:          ", handPda.toBase58());
+  console.log("  Hand PDA:          ", writPda.toBase58());
   console.log("-----------------------------\n");
 }
 

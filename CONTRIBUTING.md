@@ -1,4 +1,4 @@
-# Contributing to HAND Protocol
+# Contributing to WRIT Protocol
 
 ## Getting Started
 

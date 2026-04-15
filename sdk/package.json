@@ -1,7 +1,7 @@
 {
   "name": "@writnetwork/sdk",
   "version": "0.4.1",
-  "description": "TypeScript SDK for HAND Protocol — anonymous KYA on Solana",
+  "description": "TypeScript SDK for WRIT Protocol — anonymous KYA on Solana",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.js",
@@ -18,7 +18,7 @@
   },
   "keywords": ["solana", "anchor", "identity", "zk-proofs", "ai-agents", "kya", "proof-of-human", "web3"],
   "author": {
-    "name": "HAND Protocol core",
+    "name": "WRIT Protocol core",
     "url": "https://handprotocol.xyz"
   },
   "license": "MIT",

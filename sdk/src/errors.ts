@@ -1,54 +1,54 @@
-export class HandProtocolError extends Error {
+export class WritProtocolError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "HandProtocolError";
+    this.name = "WritProtocolError";
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
-export class HandNotFoundError extends HandProtocolError {
+export class WritNotFoundError extends WritProtocolError {
   constructor(key: string) {
     super(`HAND account not found for ${key}`);
-    this.name = "HandNotFoundError";
+    this.name = "WritNotFoundError";
   }
 }
 
-export class DelegationNotFoundError extends HandProtocolError {
+export class DelegationNotFoundError extends WritProtocolError {
   constructor(hand: string, agent: string) {
     super(`Delegation not found for hand=${hand}, agent=${agent}`);
     this.name = "DelegationNotFoundError";
   }
 }
 
-export class ReputationNotFoundError extends HandProtocolError {
+export class ReputationNotFoundError extends WritProtocolError {
   constructor(hand: string) {
     super(`Reputation account not found for hand=${hand}`);
     this.name = "ReputationNotFoundError";
   }
 }
 
-export class InvalidProofError extends HandProtocolError {
+export class InvalidProofError extends WritProtocolError {
   constructor() {
     super("Invalid zero-knowledge proof");
     this.name = "InvalidProofError";
   }
 }
 
-export class AgentNotVerifiedError extends HandProtocolError {
+export class AgentNotVerifiedError extends WritProtocolError {
   constructor(agent: string) {
     super(`Agent ${agent} has no valid delegation from any HAND`);
     this.name = "AgentNotVerifiedError";
   }
 }
 
-export class DelegationExpiredError extends HandProtocolError {
+export class DelegationExpiredError extends WritProtocolError {
   constructor(agent: string, expiresAt: number) {
     super(`Delegation for agent ${agent} expired at ${new Date(expiresAt * 1000).toISOString()}`);
     this.name = "DelegationExpiredError";
   }
 }
 
-export class InsufficientReputationError extends HandProtocolError {
+export class InsufficientReputationError extends WritProtocolError {
   constructor(current: number, required: number) {
     super(`Reputation score ${current} is below required ${required}`);
     this.name = "InsufficientReputationError";
@@ -58,6 +58,6 @@ export class InsufficientReputationError extends HandProtocolError {
 export const ERROR_CODE_MAP: Record<number, string> = {
   6000: 'InvalidProof',
   6001: 'NullifierAlreadyUsed',
-  6002: 'HandAlreadyExists',
+  6002: 'WritAlreadyExists',
   6003: 'MaxDelegationsReached',
 };

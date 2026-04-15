@@ -1,6 +1,6 @@
 {
   "version": "0.4.1",
-  "name": "hand_registry",
+  "name": "writ_registry",
   "instructions": [
     {
       "name": "initializeHand",
@@ -58,7 +58,7 @@
   ],
   "events": [
     {
-      "name": "HandCreated",
+      "name": "WritCreated",
       "fields": [
         { "name": "authority", "type": "publicKey", "index": true },
         { "name": "hand", "type": "publicKey", "index": false },
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "name": "HandRevoked",
+      "name": "WritRevoked",
       "fields": [
         { "name": "hand", "type": "publicKey", "index": true },
         { "name": "revokedBy", "type": "publicKey", "index": false }

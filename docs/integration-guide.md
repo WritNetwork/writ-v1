@@ -1,6 +1,6 @@
 # Integration Guide
 
-This guide covers how to integrate HAND Protocol into your Solana program to gate actions behind verified human identity.
+This guide covers how to integrate WRIT Protocol into your Solana program to gate actions behind verified human identity.
 
 ## Overview
 
@@ -17,16 +17,16 @@ In your program's `Cargo.toml`:
 
 ```toml
 [dependencies]
-hand_gate = { git = "https://github.com/WritNetwork/writ", features = ["cpi"] }
-hand_registry = { git = "https://github.com/WritNetwork/writ", features = ["cpi"] }
+writ_gate = { git = "https://github.com/WritNetwork/writ", features = ["cpi"] }
+writ_registry = { git = "https://github.com/WritNetwork/writ", features = ["cpi"] }
 delegation = { git = "https://github.com/WritNetwork/writ", features = ["cpi"] }
 ```
 
 ### Step 2: Add Accounts to Your Instruction
 
 ```rust
-use hand_gate::program::HandGate;
-use hand_registry::state::Hand;
+use writ_gate::program::WritGate;
+use writ_registry::state::Hand;
 use delegation::state::Delegation;
 
 #[derive(Accounts)]
@@ -46,13 +46,13 @@ pub struct ProtectedAction<'info> {
     #[account(
         seeds = [b"hand", hand.authority.as_ref()],
         bump = hand.bump,
-        seeds::program = hand_registry_program.key(),
+        seeds::program = writ_registry_program.key(),
     )]
     pub hand: Account<'info, Hand>,
 
-    pub hand_registry_program: Program<'info, hand_registry::program::HandRegistry>,
+    pub writ_registry_program: Program<'info, writ_registry::program::WritRegistry>,
     pub delegation_program: Program<'info, delegation::program::Delegation>,
-    pub hand_gate_program: Program<'info, HandGate>,
+    pub writ_gate_program: Program<'info, WritGate>,
 }
 ```
 
@@ -64,7 +64,7 @@ pub fn protected_action(ctx: Context<ProtectedAction>) -> Result<()> {
     let delegation = &ctx.accounts.delegation_account;
 
     // Basic check: Hand is active and delegation is active
-    require!(hand.active, MyError::HandNotActive);
+    require!(hand.active, MyError::WritNotActive);
     require!(delegation.active, MyError::DelegationNotActive);
 
     // Check delegation hasn't expired
@@ -82,7 +82,7 @@ pub fn protected_action(ctx: Context<ProtectedAction>) -> Result<()> {
     // Check the delegation belongs to this hand
     require!(
         delegation.hand == hand.key(),
-        MyError::HandMismatch
+        MyError::WritMismatch
     );
 
     // Your business logic here
@@ -140,10 +140,10 @@ Use case: DeFi protocols, custody systems, high-value operations.
 ### Using the TypeScript SDK
 
 ```typescript
-import { HandProtocol } from "@writnetwork/sdk";
+import { WritProtocol } from "@writnetwork/sdk";
 import { Connection, PublicKey } from "@solana/web3.js";
 
-const hand = new HandProtocol(connection, programIds);
+const hand = new WritProtocol(connection, programIds);
 
 // Before submitting a protected transaction, verify the agent
 const result = await hand.verifyAgent(agentPublicKey);
@@ -153,7 +153,7 @@ if (!result.isValid) {
 }
 
 // Include HAND accounts in your transaction
-const handPda = findHandPda(result.handKey, programIds.handRegistry);
+const handPda = findWritPda(result.writKey, programIds.writRegistry);
 const delegationPda = findDelegationPda(
   handPda[0],
   agentPublicKey,
@@ -166,7 +166,7 @@ const delegationPda = findDelegationPda(
 When building transactions that include HAND verification, you need to resolve three PDAs:
 
 ```typescript
-import { findHandPda, findDelegationPda, findReputationPda } from "@writnetwork/sdk";
+import { findWritPda, findDelegationPda, findReputationPda } from "@writnetwork/sdk";
 
 // 1. Find the delegation for this agent
 const [delegationPda] = findDelegationPda(handPda, agentPubkey, delegationProgramId);
@@ -186,7 +186,7 @@ Use the devnet-deployed programs for testing:
 const connection = new Connection("https://api.devnet.solana.com");
 
 // Create a test Hand
-await hand.mintHand(mockProofParams, testKeypair);
+await hand.mintWrit(mockProofParams, testKeypair);
 
 // Create a test delegation
 await hand.delegate({
@@ -233,13 +233,13 @@ HAND CPI calls return typed errors that you can match:
 
 ```rust
 match result {
-    Err(e) if e == HandGateError::DelegationNotActive.into() => {
+    Err(e) if e == WritGateError::DelegationNotActive.into() => {
         // Agent's delegation was revoked
     }
-    Err(e) if e == HandGateError::HandNotActive.into() => {
+    Err(e) if e == WritGateError::WritNotActive.into() => {
         // The human behind this agent revoked their Hand
     }
-    Err(e) if e == HandGateError::InsufficientReputation.into() => {
+    Err(e) if e == WritGateError::InsufficientReputation.into() => {
         // Agent's reputation below threshold
     }
     Err(e) => return Err(e),
@@ -265,6 +265,6 @@ This allows gradual migration without breaking existing integrations.
 
 ### Common Issues
 
-**PDA derivation mismatch**: Ensure you use the exact same seeds as defined in the protocol constants. The SDK `findHandPda`, `findDelegationPda` functions handle this automatically.
+**PDA derivation mismatch**: Ensure you use the exact same seeds as defined in the protocol constants. The SDK `findWritPda`, `findDelegationPda` functions handle this automatically.
 
 **Insufficient compute budget**: If your instruction combined with HAND verification exceeds 200,000 CU, request a higher budget via `ComputeBudgetProgram.setComputeUnitLimit()`.

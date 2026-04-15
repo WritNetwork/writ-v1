@@ -1,6 +1,6 @@
 {
   "version": "0.4.1",
-  "name": "hand_gate",
+  "name": "writ_gate",
   "instructions": [
     {
       "name": "verifyAgent",

@@ -3,19 +3,19 @@ import BN from "bn.js";
 import {
   anchorDiscriminator,
   anchorAccountDiscriminator,
-  serializeMintHandIx,
+  serializeMintWritIx,
   serializeDelegateIx,
   serializeUpdateScopeIx,
   serializeRevokeDelegationIx,
   serializeOpenDisputeIx,
-  deserializeHandAccount,
+  deserializeWritAccount,
   deserializeDelegationAccount,
   deserializeReputationAccount,
   deserializeDisputeAccount,
   deserializeReporterAccount,
 } from "../serialization.js";
 import type {
-  MintHandParams,
+  MintWritParams,
   DelegateParams,
   UpdateScopeParams,
   DisputeParams,
@@ -48,10 +48,10 @@ describe("anchorDiscriminator", () => {
 
 describe("anchorAccountDiscriminator", () => {
   it("produces 8-byte discriminator with account: prefix", () => {
-    const disc = anchorAccountDiscriminator("HandAccount");
+    const disc = anchorAccountDiscriminator("WritAccount");
     const expected = crypto
       .createHash("sha256")
-      .update("account:HandAccount")
+      .update("account:WritAccount")
       .digest()
       .subarray(0, 8);
     expect(disc.equals(expected)).toBe(true);
@@ -59,12 +59,12 @@ describe("anchorAccountDiscriminator", () => {
 });
 
 describe("instruction serialization", () => {
-  it("serializeMintHandIx starts with discriminator", () => {
-    const params: MintHandParams = {
+  it("serializeMintWritIx starts with discriminator", () => {
+    const params: MintWritParams = {
       nullifier: Buffer.alloc(32, 0x01),
       proof: Buffer.alloc(64, 0x02),
     };
-    const data = serializeMintHandIx(params);
+    const data = serializeMintWritIx(params);
     const disc = anchorDiscriminator("mint_hand");
     expect(data.subarray(0, 8).equals(disc)).toBe(true);
     expect(data.length).toBeGreaterThan(8);
@@ -107,8 +107,8 @@ describe("instruction serialization", () => {
 });
 
 describe("account deserialization", () => {
-  function buildHandAccountData(): Buffer {
-    const disc = anchorAccountDiscriminator("HandAccount");
+  function buildWritAccountData(): Buffer {
+    const disc = anchorAccountDiscriminator("WritAccount");
     const authority = Keypair.generate().publicKey;
     const nullifier = Buffer.alloc(32, 0xab);
     const mint = Keypair.generate().publicKey;
@@ -130,9 +130,9 @@ describe("account deserialization", () => {
     ]);
   }
 
-  it("deserializes HandAccount correctly", () => {
-    const data = buildHandAccountData();
-    const account = deserializeHandAccount(data);
+  it("deserializes WritAccount correctly", () => {
+    const data = buildWritAccountData();
+    const account = deserializeWritAccount(data);
     expect(account.verifiedAt.toNumber()).toBe(1700000000);
     expect(account.delegationsCount).toBe(3);
     expect(account.active).toBe(true);

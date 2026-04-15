@@ -8,7 +8,7 @@
  * The flow:
  *   1. Your program receives a transaction from an agent
  *   2. Your instruction includes the agent's delegation, hand, and reputation accounts
- *   3. You CPI into the hand_gate program's verify_agent instruction
+ *   3. You CPI into the writ_gate program's verify_agent instruction
  *   4. If the CPI succeeds, the agent is verified; if it fails, the tx reverts
  *
  * This is NOT a standalone runnable script — it's a reference showing the Rust
@@ -26,18 +26,18 @@
 // -- Cargo.toml dependency --
 //
 // [dependencies]
-// hand_gate = { path = "../hand-gate", features = ["cpi"] }
+// writ_gate = { path = "../writ-gate", features = ["cpi"] }
 // # or from crates.io once published:
-// # hand_gate = { version = "0.4", features = ["cpi"] }
+// # writ_gate = { version = "0.4", features = ["cpi"] }
 
 // -- Your program's instruction handler --
 
 use anchor_lang::prelude::*;
-use hand_gate::cpi::accounts::VerifyAgent;
-use hand_gate::program::HandGate;
+use writ_gate::cpi::accounts::VerifyAgent;
+use writ_gate::program::WritGate;
 
 /// Accounts struct for a gated instruction in YOUR program.
-/// The agent calls your program, and your program CPIs into hand_gate
+/// The agent calls your program, and your program CPIs into writ_gate
 /// to verify the agent before executing the business logic.
 #[derive(Accounts)]
 pub struct GatedSwap<'info> {
@@ -49,19 +49,19 @@ pub struct GatedSwap<'info> {
     // -- HAND verification accounts (passed through to the gate CPI) --
 
     /// The delegation PDA linking this agent to a Hand.
-    /// CHECK: Verified by the hand_gate program during CPI.
+    /// CHECK: Verified by the writ_gate program during CPI.
     pub delegation: AccountInfo<'info>,
 
     /// The Hand identity PDA.
-    /// CHECK: Verified by the hand_gate program during CPI.
+    /// CHECK: Verified by the writ_gate program during CPI.
     pub hand: AccountInfo<'info>,
 
     /// The reputation account for this Hand.
-    /// CHECK: Verified by the hand_gate program during CPI.
+    /// CHECK: Verified by the writ_gate program during CPI.
     pub reputation: AccountInfo<'info>,
 
-    /// The hand_gate program — needed for CPI.
-    pub hand_gate_program: Program<'info, HandGate>,
+    /// The writ_gate program — needed for CPI.
+    pub writ_gate_program: Program<'info, WritGate>,
 
     /// Clock sysvar — needed by the gate to check delegation expiry.
     pub clock: AccountInfo<'info>,
@@ -80,7 +80,7 @@ pub struct GatedSwap<'info> {
 }
 
 pub fn handler(ctx: Context<GatedSwap>, amount: u64) -> Result<()> {
-    // Step 1: CPI into hand_gate to verify the agent
+    // Step 1: CPI into writ_gate to verify the agent
     let cpi_accounts = VerifyAgent {
         agent: ctx.accounts.agent.to_account_info(),
         delegation: ctx.accounts.delegation.to_account_info(),
@@ -89,12 +89,12 @@ pub fn handler(ctx: Context<GatedSwap>, amount: u64) -> Result<()> {
         clock: ctx.accounts.clock.to_account_info(),
     };
 
-    let cpi_program = ctx.accounts.hand_gate_program.to_account_info();
+    let cpi_program = ctx.accounts.writ_gate_program.to_account_info();
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
     // Require swap permission (ACTION_SWAP = 1), minimum 50% reputation,
     // and verify the target program (your own program ID)
-    hand_gate::cpi::verify_agent(
+    writ_gate::cpi::verify_agent(
         cpi_ctx,
         5000,                    // min_reputation_score: 50%
         1,                       // required_action: ACTION_SWAP
@@ -140,7 +140,7 @@ const REPUTATION_SEED = Buffer.from("reputation");
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function findHandPda(authority: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     HAND_REGISTRY_PROGRAM_ID,
@@ -186,12 +186,12 @@ async function main() {
   );
 
   // Derive all the HAND-related PDAs
-  const [handPda] = findHandPda(handOwnerPubkey);
-  const [delegationPda] = findDelegationPda(handPda, agentKeypair.publicKey);
-  const [reputationPda] = findReputationPda(handPda);
+  const [writPda] = findWritPda(handOwnerPubkey);
+  const [delegationPda] = findDelegationPda(writPda, agentKeypair.publicKey);
+  const [reputationPda] = findReputationPda(writPda);
 
   console.log("Agent:          ", agentKeypair.publicKey.toBase58());
-  console.log("Hand PDA:       ", handPda.toBase58());
+  console.log("Hand PDA:       ", writPda.toBase58());
   console.log("Delegation PDA: ", delegationPda.toBase58());
   console.log("Reputation PDA: ", reputationPda.toBase58());
 
@@ -200,7 +200,7 @@ async function main() {
 
   // Build the transaction that calls your gated_swap instruction.
   // The HAND verification accounts are passed alongside your own accounts.
-  // The hand_gate CPI happens inside your program — no separate tx needed.
+  // The writ_gate CPI happens inside your program — no separate tx needed.
 
   console.log("\nBuilding gated swap transaction...");
 
@@ -218,9 +218,9 @@ async function main() {
 
       // HAND verification accounts — the gate CPI reads these
       delegation: delegationPda,
-      hand: handPda,
+      hand: writPda,
       reputation: reputationPda,
-      handGateProgram: HAND_GATE_PROGRAM_ID,
+      writGateProgram: HAND_GATE_PROGRAM_ID,
       clock: SYSVAR_CLOCK_PUBKEY,
 
       // Your program's own accounts
@@ -235,7 +235,7 @@ async function main() {
   );
 
   // The key insight: your program doesn't need to understand ZK proofs
-  // or implement its own identity system. It just CPIs into hand_gate
+  // or implement its own identity system. It just CPIs into writ_gate
   // and the verification happens transparently. If the agent isn't valid,
   // the CPI fails and the entire transaction reverts.
 }

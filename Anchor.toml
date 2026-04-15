@@ -1,4 +1,4 @@
-# HAND Protocol - Anchor workspace configuration
+# WRIT Protocol - Anchor workspace configuration
 [toolchain]
 anchor_version = "0.30.1"
 solana_version = "1.18.26"
@@ -8,16 +8,16 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-hand_registry = "FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk"
+writ_registry = "FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk"
 delegation = "EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK"
 reputation = "F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC"
-hand_gate = "3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"
+writ_gate = "3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"
 
 [programs.mainnet]
-hand_registry = "FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk"
+writ_registry = "FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk"
 delegation = "EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK"
 reputation = "F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC"
-hand_gate = "3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"
+writ_gate = "3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"
 
 [registry]
 url = "https://api.apr.dev"

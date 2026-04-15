@@ -1,6 +1,6 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
 import {
-  findHandPda,
+  findWritPda,
   findNullifierPda,
   findDelegationPda,
   findReputationPda,
@@ -12,17 +12,17 @@ import { HAND_SEED, NULLIFIER_SEED, DELEGATION_SEED, REPUTATION_SEED, REPORTER_S
 const PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
 
 describe("PDA derivation", () => {
-  it("findHandPda derives deterministically", () => {
+  it("findWritPda derives deterministically", () => {
     const authority = Keypair.generate().publicKey;
-    const [pda1, bump1] = findHandPda(authority, PROGRAM_ID);
-    const [pda2, bump2] = findHandPda(authority, PROGRAM_ID);
+    const [pda1, bump1] = findWritPda(authority, PROGRAM_ID);
+    const [pda2, bump2] = findWritPda(authority, PROGRAM_ID);
     expect(pda1.equals(pda2)).toBe(true);
     expect(bump1).toBe(bump2);
   });
 
-  it("findHandPda matches manual derivation", () => {
+  it("findWritPda matches manual derivation", () => {
     const authority = Keypair.generate().publicKey;
-    const [pda] = findHandPda(authority, PROGRAM_ID);
+    const [pda] = findWritPda(authority, PROGRAM_ID);
     const [expected] = PublicKey.findProgramAddressSync(
       [HAND_SEED, authority.toBuffer()],
       PROGRAM_ID,
@@ -82,8 +82,8 @@ describe("PDA derivation", () => {
   it("different authorities produce different PDAs", () => {
     const a1 = Keypair.generate().publicKey;
     const a2 = Keypair.generate().publicKey;
-    const [pda1] = findHandPda(a1, PROGRAM_ID);
-    const [pda2] = findHandPda(a2, PROGRAM_ID);
+    const [pda1] = findWritPda(a1, PROGRAM_ID);
+    const [pda2] = findWritPda(a2, PROGRAM_ID);
     expect(pda1.equals(pda2)).toBe(false);
   });
 });

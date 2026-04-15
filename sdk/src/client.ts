@@ -11,38 +11,38 @@ import {
 import BN from "bn.js";
 
 import {
-  HandAccount,
+  WritAccount,
   DelegationAccount,
   ReputationAccount,
   DisputeAccount,
   VerifyResult,
-  MintHandParams,
+  MintWritParams,
   DelegateParams,
   UpdateScopeParams,
   DisputeParams,
 } from "./types.js";
 import {
-  findHandPda,
+  findWritPda,
   findNullifierPda,
   findDelegationPda,
   findReputationPda,
   findDisputePda,
 } from "./pda.js";
 import {
-  serializeMintHandIx,
+  serializeMintWritIx,
   serializeDelegateIx,
   serializeUpdateScopeIx,
   serializeRevokeDelegationIx,
   serializeInitializeReputationIx,
   serializeOpenDisputeIx,
-  deserializeHandAccount,
+  deserializeWritAccount,
   deserializeDelegationAccount,
   deserializeReputationAccount,
   deserializeDisputeAccount,
   anchorAccountDiscriminator,
 } from "./serialization.js";
 import {
-  HandNotFoundError,
+  WritNotFoundError,
   DelegationNotFoundError,
   AgentNotVerifiedError,
   DelegationExpiredError,
@@ -51,18 +51,18 @@ import {
 import { calculateReputationScore } from "./utils.js";
 import { DELEGATION_SEED } from "./constants.js";
 
-export interface HandProgramIds {
-  handRegistry: PublicKey;
+export interface WritProgramIds {
+  writRegistry: PublicKey;
   delegation: PublicKey;
   reputation: PublicKey;
-  handGate: PublicKey;
+  writGate: PublicKey;
 }
 
-export class HandProtocol {
+export class WritProtocol {
   private connection: Connection;
-  private programIds: HandProgramIds;
+  private programIds: WritProgramIds;
 
-  constructor(connection: Connection, programIds: HandProgramIds) {
+  constructor(connection: Connection, programIds: WritProgramIds) {
     this.connection = connection;
     this.programIds = programIds;
   }
@@ -71,20 +71,20 @@ export class HandProtocol {
   /*  Hand operations                                                  */
   /* ---------------------------------------------------------------- */
 
-  async mintHand(
-    params: MintHandParams,
+  async mintWrit(
+    params: MintWritParams,
     payer: Keypair,
   ): Promise<TransactionSignature> {
-    const [handPda] = findHandPda(payer.publicKey, this.programIds.handRegistry);
-    const [nullifierPda] = findNullifierPda(params.nullifier, this.programIds.handRegistry);
+    const [writPda] = findWritPda(payer.publicKey, this.programIds.writRegistry);
+    const [nullifierPda] = findNullifierPda(params.nullifier, this.programIds.writRegistry);
 
-    const data = serializeMintHandIx(params);
+    const data = serializeMintWritIx(params);
 
     const ix = new TransactionInstruction({
-      programId: this.programIds.handRegistry,
+      programId: this.programIds.writRegistry,
       keys: [
         { pubkey: payer.publicKey, isSigner: true, isWritable: true },
-        { pubkey: handPda, isSigner: false, isWritable: true },
+        { pubkey: writPda, isSigner: false, isWritable: true },
         { pubkey: nullifierPda, isSigner: false, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
@@ -94,16 +94,16 @@ export class HandProtocol {
     return this.sendTransaction([ix], [payer]);
   }
 
-  async getHand(authority: PublicKey): Promise<HandAccount | null> {
-    const [handPda] = findHandPda(authority, this.programIds.handRegistry);
-    const accountInfo = await this.connection.getAccountInfo(handPda);
+  async getHand(authority: PublicKey): Promise<WritAccount | null> {
+    const [writPda] = findWritPda(authority, this.programIds.writRegistry);
+    const accountInfo = await this.connection.getAccountInfo(writPda);
     if (!accountInfo) return null;
-    return deserializeHandAccount(accountInfo.data as Buffer);
+    return deserializeWritAccount(accountInfo.data as Buffer);
   }
 
   async hasHand(authority: PublicKey): Promise<boolean> {
-    const [handPda] = findHandPda(authority, this.programIds.handRegistry);
-    const accountInfo = await this.connection.getAccountInfo(handPda);
+    const [writPda] = findWritPda(authority, this.programIds.writRegistry);
+    const accountInfo = await this.connection.getAccountInfo(writPda);
     return accountInfo !== null;
   }
 
@@ -115,9 +115,9 @@ export class HandProtocol {
     params: DelegateParams,
     handOwner: Keypair,
   ): Promise<TransactionSignature> {
-    const [handPda] = findHandPda(handOwner.publicKey, this.programIds.handRegistry);
+    const [writPda] = findWritPda(handOwner.publicKey, this.programIds.writRegistry);
     const [delegationPda] = findDelegationPda(
-      handPda,
+      writPda,
       params.agent,
       this.programIds.delegation,
     );
@@ -128,10 +128,10 @@ export class HandProtocol {
       programId: this.programIds.delegation,
       keys: [
         { pubkey: handOwner.publicKey, isSigner: true, isWritable: true },
-        { pubkey: handPda, isSigner: false, isWritable: true },
+        { pubkey: writPda, isSigner: false, isWritable: true },
         { pubkey: params.agent, isSigner: false, isWritable: false },
         { pubkey: delegationPda, isSigner: false, isWritable: true },
-        { pubkey: this.programIds.handRegistry, isSigner: false, isWritable: false },
+        { pubkey: this.programIds.writRegistry, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data,
@@ -144,9 +144,9 @@ export class HandProtocol {
     params: UpdateScopeParams,
     handOwner: Keypair,
   ): Promise<TransactionSignature> {
-    const [handPda] = findHandPda(handOwner.publicKey, this.programIds.handRegistry);
+    const [writPda] = findWritPda(handOwner.publicKey, this.programIds.writRegistry);
     const [delegationPda] = findDelegationPda(
-      handPda,
+      writPda,
       params.agent,
       this.programIds.delegation,
     );
@@ -157,7 +157,7 @@ export class HandProtocol {
       programId: this.programIds.delegation,
       keys: [
         { pubkey: handOwner.publicKey, isSigner: true, isWritable: false },
-        { pubkey: handPda, isSigner: false, isWritable: false },
+        { pubkey: writPda, isSigner: false, isWritable: false },
         { pubkey: delegationPda, isSigner: false, isWritable: true },
       ],
       data,
@@ -170,9 +170,9 @@ export class HandProtocol {
     agent: PublicKey,
     handOwner: Keypair,
   ): Promise<TransactionSignature> {
-    const [handPda] = findHandPda(handOwner.publicKey, this.programIds.handRegistry);
+    const [writPda] = findWritPda(handOwner.publicKey, this.programIds.writRegistry);
     const [delegationPda] = findDelegationPda(
-      handPda,
+      writPda,
       agent,
       this.programIds.delegation,
     );
@@ -183,9 +183,9 @@ export class HandProtocol {
       programId: this.programIds.delegation,
       keys: [
         { pubkey: handOwner.publicKey, isSigner: true, isWritable: true },
-        { pubkey: handPda, isSigner: false, isWritable: true },
+        { pubkey: writPda, isSigner: false, isWritable: true },
         { pubkey: delegationPda, isSigner: false, isWritable: true },
-        { pubkey: this.programIds.handRegistry, isSigner: false, isWritable: false },
+        { pubkey: this.programIds.writRegistry, isSigner: false, isWritable: false },
       ],
       data,
     });
@@ -251,9 +251,9 @@ export class HandProtocol {
       );
     }
 
-    const [handPda] = findHandPda(
+    const [writPda] = findWritPda(
       activeDelegation.hand,
-      this.programIds.handRegistry,
+      this.programIds.writRegistry,
     );
 
     let reputationScore = 0;
@@ -268,7 +268,7 @@ export class HandProtocol {
 
     return {
       isValid: true,
-      handKey: activeDelegation.hand,
+      writKey: activeDelegation.hand,
       reputationScore,
       delegatedAt: activeDelegation.delegatedAt,
       expiresAt: activeDelegation.scope.expiresAt,
@@ -341,7 +341,7 @@ export class HandProtocol {
 
     return {
       isValid: true,
-      handKey: matching.hand,
+      writKey: matching.hand,
       reputationScore,
       delegatedAt: matching.delegatedAt,
       expiresAt: matching.scope.expiresAt,
@@ -373,7 +373,7 @@ export class HandProtocol {
         { pubkey: payer.publicKey, isSigner: true, isWritable: true },
         { pubkey: hand, isSigner: false, isWritable: false },
         { pubkey: reputationPda, isSigner: false, isWritable: true },
-        { pubkey: this.programIds.handRegistry, isSigner: false, isWritable: false },
+        { pubkey: this.programIds.writRegistry, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data,
@@ -410,7 +410,7 @@ export class HandProtocol {
         { pubkey: params.hand, isSigner: false, isWritable: false },
         { pubkey: disputePda, isSigner: false, isWritable: true },
         { pubkey: reputationPda, isSigner: false, isWritable: true },
-        { pubkey: this.programIds.handRegistry, isSigner: false, isWritable: false },
+        { pubkey: this.programIds.writRegistry, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data,

@@ -1,12 +1,12 @@
-# HAND Protocol Examples
+# WRIT Protocol Examples
 
-Standalone scripts demonstrating the core flows of the HAND Protocol.
+Standalone scripts demonstrating the core flows of the WRIT Protocol.
 
 ## Prerequisites
 
 - Node.js >= 18
 - A funded Solana devnet wallet at `~/.config/solana/id.json`
-- HAND Protocol programs deployed to devnet (or localnet via `anchor localnet`)
+- WRIT Protocol programs deployed to devnet (or localnet via `anchor localnet`)
 
 Install dependencies:
 
@@ -18,12 +18,12 @@ yarn install
 
 All examples require a funded devnet wallet.
 
-### `mint-hand.ts`
+### `mint-writ.ts`
 
 Mint a new HAND identity by submitting a ZK proof of humanity. Walks through keypair loading, PDA derivation, proof generation, transaction submission, and on-chain verification.
 
 ```bash
-npx ts-node examples/mint-hand.ts
+npx ts-node examples/mint-writ.ts
 ```
 
 ### `delegate-agent.ts`
@@ -46,14 +46,14 @@ npx ts-node examples/verify-agent.ts <agent-pubkey> <hand-owner-pubkey>
 
 Reference for integrating the HAND gate into your own Solana program. Contains:
 
-- **Rust CPI pattern**: The `#[derive(Accounts)]` struct and `handler` showing how to CPI into `hand_gate::verify_agent` from your instruction.
+- **Rust CPI pattern**: The `#[derive(Accounts)]` struct and `handler` showing how to CPI into `writ_gate::verify_agent` from your instruction.
 - **TypeScript client**: How to pass the HAND-related accounts when calling your gated instruction.
 
 This is not a runnable script — it's a code reference.
 
 ### `sdk-quickstart.ts`
 
-High-level SDK usage showing the `HandProtocol` class API. Demonstrates PDA derivation, account fetching, and full agent verification in a single script.
+High-level SDK usage showing the `WritProtocol` class API. Demonstrates PDA derivation, account fetching, and full agent verification in a single script.
 
 ```bash
 npx ts-node examples/sdk-quickstart.ts
@@ -81,7 +81,7 @@ All program IDs in these examples are set to `11111111111111111111111111111111` 
 
 | Program | Seed Prefixes |
 |---------|---------------|
-| `hand_registry` | `hand`, `nullifier` |
+| `writ_registry` | `hand`, `nullifier` |
 | `delegation` | `delegation` |
 | `reputation` | `reputation`, `dispute`, `reporter` |
-| `hand_gate` | (stateless verifier) |
+| `writ_gate` | (stateless verifier) |

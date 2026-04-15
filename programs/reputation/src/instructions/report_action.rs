@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
-use hand_registry::state::hand::Hand;
+use writ_registry::state::hand::Hand;
 
 use crate::constants::{REPORTER_SEED, REPUTATION_SEED};
 use crate::error::ReputationError;
@@ -16,7 +16,7 @@ pub struct ReportAction<'info> {
 
     /// The Hand whose reputation is being updated.
     #[account(
-        constraint = hand.active @ ReputationError::HandNotActive,
+        constraint = hand.active @ ReputationError::WritNotActive,
     )]
     pub hand: Account<'info, Hand>,
 

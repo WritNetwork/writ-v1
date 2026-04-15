@@ -1,5 +1,5 @@
 /**
- * sdk-quickstart.ts — High-level SDK usage for HAND Protocol.
+ * sdk-quickstart.ts — High-level SDK usage for WRIT Protocol.
  *
  * Demonstrates the @hand-protocol/sdk API for the most common operations:
  *   1. Mint a HAND identity
@@ -19,19 +19,19 @@ import { Connection, Keypair, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { readFileSync } from "fs";
 
 // ── SDK Import ─────────────────────────────────────────────────────────────
-// The HandProtocol class is the single entry point for all operations.
+// The WritProtocol class is the single entry point for all operations.
 // It manages connections to all four programs internally.
 
 // Replace with actual import once the SDK is published:
-// import { HandProtocol } from "@hand-protocol/sdk";
+// import { WritProtocol } from "@hand-protocol/sdk";
 
 // For now, we define the interface inline to show exactly what the SDK exposes.
 
-interface HandProtocolConfig {
-  handRegistry: PublicKey;
+interface WritProtocolConfig {
+  writRegistry: PublicKey;
   delegation: PublicKey;
   reputation: PublicKey;
-  handGate: PublicKey;
+  writGate: PublicKey;
 }
 
 // Program IDs — replace with actual deployed addresses
@@ -42,11 +42,11 @@ const HAND_GATE_PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
 
 // ── SDK Class (mirrors the published @hand-protocol/sdk) ───────────────────
 
-class HandProtocol {
+class WritProtocol {
   private connection: Connection;
-  private config: HandProtocolConfig;
+  private config: WritProtocolConfig;
 
-  constructor(connection: Connection, config: HandProtocolConfig) {
+  constructor(connection: Connection, config: WritProtocolConfig) {
     this.connection = connection;
     this.config = config;
   }
@@ -55,10 +55,10 @@ class HandProtocol {
    * Derive the Hand PDA for a given authority wallet.
    * Returns [pda, bump].
    */
-  findHandPda(authority: PublicKey): [PublicKey, number] {
+  findWritPda(authority: PublicKey): [PublicKey, number] {
     return PublicKey.findProgramAddressSync(
       [Buffer.from("hand"), authority.toBuffer()],
-      this.config.handRegistry,
+      this.config.writRegistry,
     );
   }
 
@@ -86,7 +86,7 @@ class HandProtocol {
    * Fetch a Hand account. Returns null if it doesn't exist.
    */
   async getHand(authority: PublicKey): Promise<any | null> {
-    const [pda] = this.findHandPda(authority);
+    const [pda] = this.findWritPda(authority);
     const accountInfo = await this.connection.getAccountInfo(pda);
     if (!accountInfo) return null;
 
@@ -145,13 +145,13 @@ class HandProtocol {
     budgetRemaining?: number;
     expiresAt?: Date | null;
   }> {
-    const [handPda] = this.findHandPda(handOwner);
-    const [delegationPda] = this.findDelegationPda(handPda, agent);
-    const [reputationPda] = this.findReputationPda(handPda);
+    const [writPda] = this.findWritPda(handOwner);
+    const [delegationPda] = this.findDelegationPda(writPda, agent);
+    const [reputationPda] = this.findReputationPda(writPda);
 
     // Fetch all three accounts in parallel for efficiency
     const [handInfo, delegationInfo, reputationInfo] = await Promise.all([
-      this.connection.getAccountInfo(handPda),
+      this.connection.getAccountInfo(writPda),
       this.connection.getAccountInfo(delegationPda),
       this.connection.getAccountInfo(reputationPda),
     ]);
@@ -220,11 +220,11 @@ async function main() {
 
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
-  const hand = new HandProtocol(connection, {
-    handRegistry: HAND_REGISTRY_PROGRAM_ID,
+  const hand = new WritProtocol(connection, {
+    writRegistry: HAND_REGISTRY_PROGRAM_ID,
     delegation: DELEGATION_PROGRAM_ID,
     reputation: REPUTATION_PROGRAM_ID,
-    handGate: HAND_GATE_PROGRAM_ID,
+    writGate: HAND_GATE_PROGRAM_ID,
   });
 
   const wallet = loadKeypair();
@@ -232,8 +232,8 @@ async function main() {
 
   // ── 1. Derive PDAs ──────────────────────────────────────────────────────
 
-  const [handPda, handBump] = hand.findHandPda(wallet.publicKey);
-  console.log("\nHand PDA:", handPda.toBase58(), `(bump: ${handBump})`);
+  const [writPda, writBump] = hand.findWritPda(wallet.publicKey);
+  console.log("\nHand PDA:", writPda.toBase58(), `(bump: ${writBump})`);
   // => Hand PDA: 7xK...abc (bump: 254)
 
   // ── 2. Check if Hand exists ──────────────────────────────────────────────
@@ -242,22 +242,22 @@ async function main() {
   if (handAccount) {
     console.log("Hand account found at:", handAccount.pda.toBase58());
   } else {
-    console.log("No Hand account found. Mint one first with mint-hand.ts");
+    console.log("No Hand account found. Mint one first with mint-writ.ts");
   }
   // => Hand account found at: 7xK...abc
   //    OR
-  // => No Hand account found. Mint one first with mint-hand.ts
+  // => No Hand account found. Mint one first with mint-writ.ts
 
   // ── 3. Derive agent delegation PDA ───────────────────────────────────────
 
   const agentPubkey = Keypair.generate().publicKey; // demo agent
-  const [delegationPda] = hand.findDelegationPda(handPda, agentPubkey);
+  const [delegationPda] = hand.findDelegationPda(writPda, agentPubkey);
   console.log("\nDelegation PDA:", delegationPda.toBase58());
   // => Delegation PDA: 9yM...def
 
   // ── 4. Check delegation ──────────────────────────────────────────────────
 
-  const delegation = await hand.getDelegation(handPda, agentPubkey);
+  const delegation = await hand.getDelegation(writPda, agentPubkey);
   if (delegation) {
     console.log("Delegation found at:", delegation.pda.toBase58());
   } else {
@@ -269,10 +269,10 @@ async function main() {
 
   // ── 5. Check reputation ──────────────────────────────────────────────────
 
-  const [reputationPda] = hand.findReputationPda(handPda);
+  const [reputationPda] = hand.findReputationPda(writPda);
   console.log("\nReputation PDA:", reputationPda.toBase58());
 
-  const reputation = await hand.getReputation(handPda);
+  const reputation = await hand.getReputation(writPda);
   if (reputation) {
     console.log("Reputation account found at:", reputation.pda.toBase58());
   } else {
@@ -312,7 +312,7 @@ async function main() {
   //
   // The SDK provides a clean interface over four programs:
   //
-  //   hand.findHandPda(authority)           — derive Hand PDA
+  //   hand.findWritPda(authority)           — derive Hand PDA
   //   hand.findDelegationPda(hand, agent)   — derive Delegation PDA
   //   hand.findReputationPda(hand)          — derive Reputation PDA
   //   hand.getHand(authority)               — fetch Hand account

@@ -2,10 +2,10 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
 use crate::constants::{HAND_SEED, NULLIFIER_SEED};
-use crate::error::HandError;
+use crate::error::WritError;
 use crate::state::hand::{Hand, NullifierRecord};
 use crate::state::verifier::{compute_nullifier_hash, verify_groth16_proof};
-use crate::{HandCreated};
+use crate::{WritCreated};
 
 #[derive(Accounts)]
 #[instruction(
@@ -58,11 +58,11 @@ pub fn handler(
 ) -> Result<()> {
     // 1. Verify the ZK proof
     let valid = verify_groth16_proof(&proof_a, &proof_b, &proof_c, &public_signals)?;
-    require!(valid, HandError::InvalidProof);
+    require!(valid, WritError::InvalidProof);
 
     // 2. Read on-chain clock
     let clock = Clock::from_account_info(&ctx.accounts.clock)
-        .map_err(|_| HandError::ClockError)?;
+        .map_err(|_| WritError::ClockError)?;
     let now = clock.unix_timestamp;
 
     // 3. Compute the canonical nullifier hash and verify it matches the provided one
@@ -85,7 +85,7 @@ pub fn handler(
     nullifier_record.bump = ctx.bumps.nullifier_record;
 
     // 6. Emit event
-    emit!(HandCreated {
+    emit!(WritCreated {
         authority: hand.authority,
         nullifier: hand.nullifier,
         hand: hand.key(),

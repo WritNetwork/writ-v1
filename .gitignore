@@ -26,3 +26,4 @@ __pycache__/
 .git.backup/
 .git.backup/
 .git.backup2/
+.git.rename-backup/
