@@ -28,7 +28,7 @@ sha2 = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 colored = "2.1"
-dialoguer = "0.11"
+dialoguer = "0.12"
 indicatif = "0.17"
 dirs = "5.0"
 toml_edit = "0.22"
