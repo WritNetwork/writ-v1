@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use delegation::state::delegation::Delegation;
-use hand_registry::state::hand::Hand;
+use writ_registry::state::hand::Hand;
 
 use crate::error::GateError;
 
@@ -11,21 +11,21 @@ use crate::error::GateError;
 /// This is designed to be used as a composable guard in CPI contexts:
 ///
 /// ```ignore
-/// hand_gate::macros::assert_hand_gated(
+/// writ_gate::macros::assert_writ_gated(
 ///     &delegation_account,
 ///     &hand_account,
 ///     &agent_pubkey,
 ///     now,
 /// )?;
 /// ```
-pub fn assert_hand_gated(
+pub fn assert_writ_gated(
     delegation_account: &Account<Delegation>,
-    hand_account: &Account<Hand>,
+    hand_account: &Account<Writ>,
     agent: &Pubkey,
     now: i64,
 ) -> Result<()> {
     // 1. Hand must be active
-    require!(hand_account.active, GateError::HandNotActive);
+    require!(hand_account.active, GateError::WritNotActive);
 
     // 2. Delegation must be active
     require!(delegation_account.active, GateError::DelegationNotActive);
@@ -33,7 +33,7 @@ pub fn assert_hand_gated(
     // 3. Delegation must reference this hand
     require!(
         delegation_account.hand == hand_account.key(),
-        GateError::DelegationHandMismatch
+        GateError::DelegationWritMismatch
     );
 
     // 4. Delegation must reference this agent

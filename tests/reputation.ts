@@ -21,7 +21,7 @@ const DEFAULT_SCORE = 5000;
 
 // ── PDA Helpers ────────────────────────────────────────────────────────────
 
-function findHandPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     programId,
@@ -62,10 +62,10 @@ function generateMockProof() {
   };
 }
 
-async function createHandIdentity(
+async function createWritIdentity(
   provider: anchor.AnchorProvider,
   registryProgram: Program,
-): Promise<{ owner: Keypair; handPda: PublicKey }> {
+): Promise<{ owner: Keypair; writPda: PublicKey }> {
   const owner = Keypair.generate();
   const sig = await provider.connection.requestAirdrop(
     owner.publicKey,
@@ -75,14 +75,14 @@ async function createHandIdentity(
 
   const { proofA, proofB, proofC, publicSignals } = generateMockProof();
   const nullifier = randomBytes(32);
-  const [handPda] = findHandPda(owner.publicKey, registryProgram.programId);
+  const [writPda] = findWritPda(owner.publicKey, registryProgram.programId);
   const [nullifierPda] = findNullifierPda(nullifier, registryProgram.programId);
 
   await registryProgram.methods
     .initializeHand(proofA, proofB, proofC, publicSignals, [...nullifier] as any)
     .accounts({
       authority: owner.publicKey,
-      hand: handPda,
+      hand: writPda,
       nullifierRecord: nullifierPda,
       systemProgram: SystemProgram.programId,
       clock: SYSVAR_CLOCK_PUBKEY,
@@ -90,7 +90,7 @@ async function createHandIdentity(
     .signers([owner])
     .rpc();
 
-  return { owner, handPda };
+  return { owner, writPda };
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────
@@ -99,18 +99,18 @@ describe("reputation", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const registryProgram = anchor.workspace.HandRegistry as Program;
+  const registryProgram = anchor.workspace.WritRegistry as Program;
   const reputationProgram = anchor.workspace.Reputation as Program;
 
   let handOwner: Keypair;
-  let handPda: PublicKey;
+  let writPda: PublicKey;
   let reputationPda: PublicKey;
 
   before(async () => {
-    const identity = await createHandIdentity(provider, registryProgram);
+    const identity = await createWritIdentity(provider, registryProgram);
     handOwner = identity.owner;
-    handPda = identity.handPda;
-    [reputationPda] = findReputationPda(handPda, reputationProgram.programId);
+    writPda = identity.writPda;
+    [reputationPda] = findReputationPda(writPda, reputationProgram.programId);
   });
 
   describe("initialize_reputation", () => {
@@ -119,7 +119,7 @@ describe("reputation", () => {
         .initializeReputation()
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           systemProgram: SystemProgram.programId,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -133,7 +133,7 @@ describe("reputation", () => {
 
       assert.equal(
         repAccount.hand.toBase58(),
-        handPda.toBase58(),
+        writPda.toBase58(),
         "Reputation must reference the correct Hand",
       );
       assert.equal(
@@ -179,7 +179,7 @@ describe("reputation", () => {
         .reportAction(true, new anchor.BN(1_000_000_000))
         .accounts({
           reporter: provider.wallet.publicKey,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -220,7 +220,7 @@ describe("reputation", () => {
         .reportAction(false, new anchor.BN(500_000_000))
         .accounts({
           reporter: provider.wallet.publicKey,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -274,7 +274,7 @@ describe("reputation", () => {
         .accounts({
           challenger: challenger.publicKey,
           agent: agent.publicKey,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           dispute: disputePda,
           systemProgram: SystemProgram.programId,
@@ -299,7 +299,7 @@ describe("reputation", () => {
       );
       assert.equal(
         disputeAccount.hand.toBase58(),
-        handPda.toBase58(),
+        writPda.toBase58(),
         "Dispute must reference the correct Hand",
       );
       assert.equal(
@@ -338,7 +338,7 @@ describe("reputation", () => {
         .accounts({
           challenger: challenger.publicKey,
           agent: agent.publicKey,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           dispute: disputePda,
           systemProgram: SystemProgram.programId,
@@ -357,7 +357,7 @@ describe("reputation", () => {
         .accounts({
           resolver: provider.wallet.publicKey,
           dispute: disputePda,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           challenger: challenger.publicKey,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -417,7 +417,7 @@ describe("reputation", () => {
         .accounts({
           challenger: challenger2.publicKey,
           agent: agent2.publicKey,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           dispute: disputePda2,
           systemProgram: SystemProgram.programId,
@@ -436,7 +436,7 @@ describe("reputation", () => {
         .accounts({
           resolver: provider.wallet.publicKey,
           dispute: disputePda2,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           challenger: challenger2.publicKey,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -473,7 +473,7 @@ describe("reputation", () => {
           .reportAction(true, new anchor.BN(2_000_000_000))
           .accounts({
             reporter: provider.wallet.publicKey,
-            hand: handPda,
+            hand: writPda,
             reputation: reputationPda,
             clock: SYSVAR_CLOCK_PUBKEY,
           })
@@ -486,7 +486,7 @@ describe("reputation", () => {
           .reportAction(false, new anchor.BN(100_000_000))
           .accounts({
             reporter: provider.wallet.publicKey,
-            hand: handPda,
+            hand: writPda,
             reputation: reputationPda,
             clock: SYSVAR_CLOCK_PUBKEY,
           })
@@ -501,7 +501,7 @@ describe("reputation", () => {
       await reputationProgram.methods
         .recalculateScore()
         .accounts({
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })

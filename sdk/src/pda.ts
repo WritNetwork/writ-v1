@@ -8,7 +8,7 @@ import {
   DISPUTE_SEED,
 } from "./constants.js";
 
-export function findHandPda(
+export function findWritPda(
   authority: PublicKey,
   programId: PublicKey,
 ): [PublicKey, number] {

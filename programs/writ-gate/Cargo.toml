@@ -1,12 +1,12 @@
 [package]
-name = "hand_registry"
+name = "writ_gate"
 version.workspace = true
 edition.workspace = true
-description = "HAND Protocol — ZK-based anonymous identity registry"
+description = "WRIT Protocol — agent verification gateway"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "hand_registry"
+name = "writ_gate"
 
 [features]
 default = []
@@ -21,8 +21,6 @@ anchor-lang = { workspace = true }
 solana-program = { workspace = true }
 borsh = { workspace = true }
 thiserror = { workspace = true }
-sha2 = { workspace = true }
-ark-bn254 = { workspace = true }
-ark-groth16 = { workspace = true }
-ark-serialize = { workspace = true }
-ark-ff = { workspace = true }
+writ_registry = { path = "../writ-registry", features = ["cpi"] }
+delegation = { path = "../delegation", features = ["cpi"] }
+reputation = { path = "../reputation", features = ["cpi"] }

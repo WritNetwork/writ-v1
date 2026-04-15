@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="banner.png" alt="HAND Protocol" width="100%" />
+  <img src="banner.png" alt="WRIT Protocol" width="100%" />
 </p>
 
 <h1 align="center">
@@ -70,27 +70,27 @@ No biometrics. No cameras. No off-chain dependency. Just cryptography.
 
 ## §2 &nbsp; Architecture
 
-Four on-chain programs form a layered verification stack. External protocols only ever touch the top layer (`hand_gate`), which reads from the three layers below in a single cross-program invocation.
+Four on-chain programs form a layered verification stack. External protocols only ever touch the top layer (`writ_gate`), which reads from the three layers below in a single cross-program invocation.
 
 <table>
   <thead>
     <tr><th align="left">Layer</th><th align="left">Program</th><th align="left">Role</th><th align="left">State</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>L4</code></td><td><code>hand_gate</code></td><td>Single verification entrypoint. Returns <code>AgentStatus</code> in one CPI.</td><td>stateless</td></tr>
+    <tr><td><code>L4</code></td><td><code>writ_gate</code></td><td>Single verification entrypoint. Returns <code>AgentStatus</code> in one CPI.</td><td>stateless</td></tr>
     <tr><td><code>L3</code></td><td><code>reputation</code></td><td>0&ndash;10,000 score from on-chain behavior. Stake-based disputes.</td><td><code>ReputationAccount</code></td></tr>
     <tr><td><code>L2</code></td><td><code>delegation</code></td><td>Scoped permissions: program whitelist, budget cap, expiry.</td><td><code>DelegationScope</code></td></tr>
-    <tr><td><code>L1</code></td><td><code>hand_registry</code></td><td>ZK Groth16 (BN254) proof verification. Poseidon nullifier. Token-2022 SBT.</td><td><code>HandAccount</code></td></tr>
+    <tr><td><code>L1</code></td><td><code>writ_registry</code></td><td>ZK Groth16 (BN254) proof verification. Poseidon nullifier. Token-2022 SBT.</td><td><code>WritAccount</code></td></tr>
   </tbody>
 </table>
 
 ```mermaid
 flowchart TD
     ext["external protocol<br/>(liquidity pool, lending, airdrop)"]
-    gate["L4 · hand_gate<br/>returns AgentStatus in one CPI"]
+    gate["L4 · writ_gate<br/>returns AgentStatus in one CPI"]
     del["L2 · delegation<br/>scope, budget, expiry"]
     rep["L3 · reputation<br/>score, age, disputes"]
-    reg["L1 · hand_registry<br/>ZK verify, SBT, nullifier"]
+    reg["L1 · writ_registry<br/>ZK verify, SBT, nullifier"]
 
     ext -->|"CPI: verify_agent"| gate
     gate -->|read PDA| del
@@ -107,7 +107,7 @@ flowchart TD
 
 ### Design properties
 
-- **Single CPI surface.** Any Solana program gates an instruction by calling `hand_gate::verify_agent` once.
+- **Single CPI surface.** Any Solana program gates an instruction by calling `writ_gate::verify_agent` once.
 - **No off-chain dependency.** All state is on-chain. No oracle, no relayer, no trusted fetcher.
 - **No circular dependencies.** L4 reads L1/L2/L3. L2 and L3 read L1. L1 reads nothing.
 - **Budget-aware.** Full four-program verification fits inside the Solana 200k compute-unit budget.
@@ -116,12 +116,12 @@ flowchart TD
 ## §3 &nbsp; The one call
 
 ```rust
-use hand_gate::{cpi, cpi::accounts::VerifyAgentAccounts};
+use writ_gate::{cpi, cpi::accounts::VerifyAgentAccounts};
 
 pub fn sensitive_swap(ctx: Context<SensitiveSwap>, amount_in: u64) -> Result<()> {
     // One CPI. One branch. No off-chain dependency.
     let status = cpi::verify_agent(
-        CpiContext::new(ctx.accounts.hand_gate_program.to_account_info(), VerifyAgentAccounts {
+        CpiContext::new(ctx.accounts.writ_gate_program.to_account_info(), VerifyAgentAccounts {
             delegation: ctx.accounts.delegation.to_account_info(),
             hand: ctx.accounts.hand.to_account_info(),
             clock: ctx.accounts.clock.to_account_info(),
@@ -142,19 +142,19 @@ pub fn sensitive_swap(ctx: Context<SensitiveSwap>, amount_in: u64) -> Result<()>
 <summary><b>TypeScript — same verification, client-side</b></summary>
 
 ```typescript
-import { HandProtocol } from "@writnetwork/sdk";
+import { WritProtocol } from "@writnetwork/sdk";
 import { Connection, PublicKey } from "@solana/web3.js";
 
 const connection = new Connection("https://api.devnet.solana.com");
-const hand = new HandProtocol(connection, {
-  handRegistry: new PublicKey("FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk"),
+const hand = new WritProtocol(connection, {
+  writRegistry: new PublicKey("FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk"),
   delegation:   new PublicKey("EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK"),
   reputation:   new PublicKey("F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC"),
-  handGate:     new PublicKey("3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"),
+  writGate:     new PublicKey("3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"),
 });
 
 const status = await hand.verifyAgent(agentPublicKey);
-// { isValid: true, handKey: "7xKq...", reputationScore: 8200,
+// { isValid: true, writKey: "7xKq...", reputationScore: 8200,
 //   delegatedAt: 1713024000, expiresAt: 1713283200, allowedActions: 1 }
 ```
 
@@ -177,10 +177,10 @@ hand verify     --agent BotW...5kP
 <table>
   <thead><tr><th align="left">Program</th><th align="left">Devnet Program ID</th><th align="center">Explorer</th></tr></thead>
   <tbody>
-    <tr><td><code>hand_gate</code></td><td><code>3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M</code></td><td align="center"><a href="https://explorer.solana.com/address/3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M?cluster=devnet">↗</a></td></tr>
+    <tr><td><code>writ_gate</code></td><td><code>3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M</code></td><td align="center"><a href="https://explorer.solana.com/address/3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M?cluster=devnet">↗</a></td></tr>
     <tr><td><code>reputation</code></td><td><code>F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC</code></td><td align="center"><a href="https://explorer.solana.com/address/F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC?cluster=devnet">↗</a></td></tr>
     <tr><td><code>delegation</code></td><td><code>EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK</code></td><td align="center"><a href="https://explorer.solana.com/address/EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK?cluster=devnet">↗</a></td></tr>
-    <tr><td><code>hand_registry</code></td><td><code>FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk</code></td><td align="center"><a href="https://explorer.solana.com/address/FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk?cluster=devnet">↗</a></td></tr>
+    <tr><td><code>writ_registry</code></td><td><code>FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk</code></td><td align="center"><a href="https://explorer.solana.com/address/FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk?cluster=devnet">↗</a></td></tr>
   </tbody>
 </table>
 
@@ -198,7 +198,7 @@ score      = clamp(base − penalty + age_bonus, 0, 10000)
 Any program can gate on reputation:
 
 ```rust
-#[hand_gated(min_reputation = 5000)]
+#[writ_gated(min_reputation = 5000)]
 pub fn quality_gate(ctx: Context<X>) -> Result<()> { /* ... */ }
 ```
 
@@ -244,10 +244,10 @@ Requires: Rust 1.78+, Solana CLI 1.18.26, Anchor 0.30.1, Node 20+.
 ```
 writ/
 ├─ programs/
-│  ├─ hand-registry/    L1  ZK verification · SBT minting
+│  ├─ writ-registry/    L1  ZK verification · SBT minting
 │  ├─ delegation/       L2  scoped permissions · budget · expiry
 │  ├─ reputation/       L3  scoring · disputes · reporters
-│  └─ hand-gate/        L4  CPI verification interface
+│  └─ writ-gate/        L4  CPI verification interface
 ├─ sdk/                     TypeScript client library
 ├─ cli/                     Rust command-line tool
 ├─ tests/                   Anchor integration tests

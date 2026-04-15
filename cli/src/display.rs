@@ -5,7 +5,7 @@ use solana_sdk::pubkey::Pubkey;
 
 /// Mirror of the on-chain Hand account (after 8-byte discriminator).
 #[derive(Debug)]
-pub struct HandData {
+pub struct WritData {
     pub authority: Pubkey,
     pub nullifier: [u8; 32],
     pub mint: Pubkey,
@@ -149,7 +149,7 @@ pub fn format_score(score: u32) -> String {
 
 // ── Pretty printers ────────────────────────────────────────────────────────
 
-pub fn print_hand_status(hand: &HandData, pda: &Pubkey) {
+pub fn print_hand_status(hand: &WritData, pda: &Pubkey) {
     println!();
     println!("{}", "╔══════════════════════════════════════════╗".cyan());
     println!(
@@ -368,7 +368,7 @@ pub fn print_reputation(rep: &ReputationData, pda: &Pubkey) {
 pub fn print_verify_result(
     agent: &Pubkey,
     delegation: Option<&DelegationData>,
-    hand: Option<&HandData>,
+    hand: Option<&WritData>,
     reputation: Option<&ReputationData>,
     min_reputation: Option<u32>,
 ) {
@@ -452,7 +452,7 @@ pub fn anchor_discriminator(account_name: &str) -> [u8; 8] {
 }
 
 /// Deserialize a Hand account from raw account data (includes 8-byte discriminator).
-pub fn deserialize_hand(data: &[u8]) -> Result<HandData, String> {
+pub fn deserialize_hand(data: &[u8]) -> Result<WritData, String> {
     let disc = anchor_discriminator("Hand");
     if data.len() < 8 || data[..8] != disc {
         return Err("Invalid Hand account discriminator".to_string());
@@ -484,7 +484,7 @@ pub fn deserialize_hand(data: &[u8]) -> Result<HandData, String> {
 
     let bump = d[offset];
 
-    Ok(HandData {
+    Ok(WritData {
         authority,
         nullifier,
         mint,

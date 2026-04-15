@@ -6,7 +6,7 @@ use anchor_lang::prelude::*;
 #[account]
 #[derive(InitSpace)]
 /// Verified human identity credential (non-transferable)
-pub struct Hand {
+pub struct Writ {
     /// The wallet that owns this Hand identity.
     pub authority: Pubkey,
     /// Unique nullifier derived from the ZK proof, prevents double-registration.

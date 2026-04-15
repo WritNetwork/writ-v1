@@ -1,6 +1,6 @@
 # Architecture
 
-HAND Protocol consists of four on-chain programs that form a layered identity and delegation stack for AI agents on Solana.
+WRIT Protocol consists of four on-chain programs that form a layered identity and delegation stack for AI agents on Solana.
 
 ## Layer Diagram
 
@@ -113,14 +113,14 @@ New hands start at 5000 (neutral). Score moves based on reported activity and di
 External programs use Hand Gate via CPI:
 
 ```rust
-use hand_gate::cpi::verify_agent;
+use writ_gate::cpi::verify_agent;
 
 // In your instruction handler:
 let result = verify_agent(cpi_ctx, agent_pubkey)?;
 require!(result.is_valid, MyError::AgentNotVerified);
 ```
 
-The `#[hand_gated]` attribute macro (planned) will automate this pattern.
+The `#[writ_gated]` attribute macro (planned) will automate this pattern.
 
 ## Compute Budget
 

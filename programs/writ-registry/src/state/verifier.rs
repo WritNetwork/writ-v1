@@ -5,7 +5,7 @@ use ark_groth16::{prepare_verifying_key, verify_proof, Proof, VerifyingKey};
 use ark_serialize::CanonicalDeserialize;
 use sha2::{Digest, Sha256};
 
-use crate::error::HandError;
+use crate::error::WritError;
 
 // ── Verification Key (BN254 curve) ──────────────────────────────────────────
 // Embedded circuit-specific Groth16 verification key. The devnet binary ships
@@ -47,11 +47,11 @@ pub fn verify_groth16_proof(
 ) -> Result<bool> {
     // Deserialize proof components
     let a = G1Affine::deserialize_uncompressed(&*proof_a)
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
     let b = G2Affine::deserialize_uncompressed(&*proof_b)
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
     let c = G1Affine::deserialize_uncompressed(&*proof_c)
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
 
     let proof = Proof::<Bn254> { a, b, c };
 
@@ -68,7 +68,7 @@ pub fn verify_groth16_proof(
 
     // Execute the pairing check
     let valid = verify_proof(&pvk, &proof, &public_inputs)
-        .map_err(|_| error!(HandError::InvalidProof))?;
+        .map_err(|_| error!(WritError::InvalidProof))?;
 
     Ok(valid)
 }
@@ -76,17 +76,17 @@ pub fn verify_groth16_proof(
 /// Reconstruct the verification key from embedded constant byte arrays.
 fn build_verification_key() -> Result<VerifyingKey<Bn254>> {
     let alpha_g1 = G1Affine::deserialize_uncompressed(&VK_ALPHA_G1[..])
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
     let beta_g2 = G2Affine::deserialize_uncompressed(&VK_BETA_G2[..])
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
     let gamma_g2 = G2Affine::deserialize_uncompressed(&VK_GAMMA_G2[..])
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
     let delta_g2 = G2Affine::deserialize_uncompressed(&VK_DELTA_G2[..])
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
     let ic_0 = G1Affine::deserialize_uncompressed(&VK_IC_0[..])
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
     let ic_1 = G1Affine::deserialize_uncompressed(&VK_IC_1[..])
-        .map_err(|_| error!(HandError::InvalidVerificationData))?;
+        .map_err(|_| error!(WritError::InvalidVerificationData))?;
 
     Ok(VerifyingKey::<Bn254> {
         alpha_g1,

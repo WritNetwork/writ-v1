@@ -23,7 +23,7 @@ pub async fn handle(args: VerifyArgs) -> Result<(), Box<dyn std::error::Error>> 
     let config = load_config()?;
     let rpc = RpcClient::new(&config.rpc_url);
     let delegation_id = config.program_ids.delegation_pubkey()?;
-    let registry_id = config.program_ids.hand_registry_pubkey()?;
+    let registry_id = config.program_ids.writ_registry_pubkey()?;
     let reputation_id = config.program_ids.reputation_pubkey()?;
 
     let agent: Pubkey = args
@@ -52,7 +52,7 @@ pub async fn handle(args: VerifyArgs) -> Result<(), Box<dyn std::error::Error>> 
     );
 
     let mut delegation: Option<DelegationData> = None;
-    let mut hand: Option<HandData> = None;
+    let mut hand: Option<WritData> = None;
     let mut reputation: Option<ReputationData> = None;
 
     // Try to find an active delegation for this agent

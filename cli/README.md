@@ -1,6 +1,6 @@
 # HAND CLI
 
-Command-line interface for the HAND Protocol — anonymous KYA (Know Your Agent) on Solana.
+Command-line interface for the WRIT Protocol — anonymous KYA (Know Your Agent) on Solana.
 
 ## Build
 

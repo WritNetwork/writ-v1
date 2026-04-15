@@ -2,7 +2,7 @@
 name = "reputation"
 version.workspace = true
 edition.workspace = true
-description = "HAND Protocol — on-chain reputation scoring and disputes"
+description = "WRIT Protocol — on-chain reputation scoring and disputes"
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -21,5 +21,5 @@ anchor-lang = { workspace = true }
 solana-program = { workspace = true }
 borsh = { workspace = true }
 thiserror = { workspace = true }
-hand_registry = { path = "../hand-registry", features = ["cpi"] }
+writ_registry = { path = "../writ-registry", features = ["cpi"] }
 delegation = { path = "../delegation", features = ["cpi"] }

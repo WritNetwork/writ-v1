@@ -3,10 +3,10 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum GateError {
     #[msg("The Hand identity is not active")]
-    HandNotActive,
+    WritNotActive,
 
     #[msg("The Hand identity is not verified")]
-    HandNotVerified,
+    WritNotVerified,
 
     #[msg("The delegation is not active")]
     DelegationNotActive,
@@ -18,7 +18,7 @@ pub enum GateError {
     DelegationAgentMismatch,
 
     #[msg("The delegation does not belong to the provided Hand")]
-    DelegationHandMismatch,
+    DelegationWritMismatch,
 
     #[msg("Reputation score is below the required minimum")]
     ReputationTooLow,

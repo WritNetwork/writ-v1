@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum ReputationError {
     #[msg("The Hand identity is not active")]
-    HandNotActive,
+    WritNotActive,
 
     #[msg("A reputation account already exists for this Hand")]
     ReputationAlreadyExists,

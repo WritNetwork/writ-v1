@@ -42,7 +42,7 @@ const ACTION_MINT = 16;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function findHandPda(authority: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     HAND_REGISTRY_PROGRAM_ID,
@@ -107,12 +107,12 @@ async function verifyAgent(
   minReputationScore: number = 0,
 ): Promise<VerificationResult> {
   // Step 1: Find the Hand PDA from the owner
-  const [handPda] = findHandPda(handOwnerPubkey);
+  const [writPda] = findWritPda(handOwnerPubkey);
 
   // Step 2: Check if the Hand account exists and is active
   let handAccount: any;
   try {
-    handAccount = await registryProgram.account.hand.fetch(handPda);
+    handAccount = await registryProgram.account.hand.fetch(writPda);
   } catch {
     return { isValid: false, reason: "Hand account not found" };
   }
@@ -126,7 +126,7 @@ async function verifyAgent(
   }
 
   // Step 3: Find and check the Delegation PDA
-  const [delegationPda] = findDelegationPda(handPda, agentPubkey);
+  const [delegationPda] = findDelegationPda(writPda, agentPubkey);
 
   let delegationAccount: any;
   try {
@@ -177,7 +177,7 @@ async function verifyAgent(
   }
 
   // Step 4: Check reputation (optional threshold)
-  const [reputationPda] = findReputationPda(handPda);
+  const [reputationPda] = findReputationPda(writPda);
 
   let reputationScore = 0;
   try {
@@ -241,7 +241,7 @@ async function main() {
   const provider = new AnchorProvider(connection, wallet, { commitment: "confirmed" });
   anchor.setProvider(provider);
 
-  const registryProgram = anchor.workspace.HandRegistry as Program;
+  const registryProgram = anchor.workspace.WritRegistry as Program;
   const delegationProgram = anchor.workspace.Delegation as Program;
   const reputationProgram = anchor.workspace.Reputation as Program;
 

@@ -8,10 +8,10 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk");
 
 #[program]
-pub mod hand_registry {
+pub mod writ_registry {
     use super::*;
 
     /// Initialize a new HAND identity by submitting a ZK proof of humanity.
@@ -45,7 +45,7 @@ pub mod hand_registry {
 // ── Events ──────────────────────────────────────────────────────────────────
 
 #[event]
-pub struct HandCreated {
+pub struct WritCreated {
     pub authority: Pubkey,
     pub nullifier: [u8; 32],
     pub hand: Pubkey,
@@ -53,7 +53,7 @@ pub struct HandCreated {
 }
 
 #[event]
-pub struct HandRevoked {
+pub struct WritRevoked {
     pub hand: Pubkey,
     pub revoked_at: i64,
 }

@@ -9,10 +9,10 @@ pub mod verify;
 
 use instructions::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M");
 
 #[program]
-pub mod hand_gate {
+pub mod writ_gate {
     use super::*;
 
     /// Verify that an agent has a valid, active delegation backed by a verified Hand.

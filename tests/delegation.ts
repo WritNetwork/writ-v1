@@ -18,7 +18,7 @@ const MAX_DELEGATIONS = 5;
 
 // ── PDA Helpers ────────────────────────────────────────────────────────────
 
-function findHandPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     programId,
@@ -58,10 +58,10 @@ function generateMockProof() {
  * Creates a funded keypair, registers a Hand identity, and returns everything
  * needed to create delegations from that hand.
  */
-async function createHandIdentity(
+async function createWritIdentity(
   provider: anchor.AnchorProvider,
   registryProgram: Program,
-): Promise<{ owner: Keypair; handPda: PublicKey }> {
+): Promise<{ owner: Keypair; writPda: PublicKey }> {
   const owner = Keypair.generate();
   const sig = await provider.connection.requestAirdrop(
     owner.publicKey,
@@ -71,14 +71,14 @@ async function createHandIdentity(
 
   const { proofA, proofB, proofC, publicSignals } = generateMockProof();
   const nullifier = randomBytes(32);
-  const [handPda] = findHandPda(owner.publicKey, registryProgram.programId);
+  const [writPda] = findWritPda(owner.publicKey, registryProgram.programId);
   const [nullifierPda] = findNullifierPda(nullifier, registryProgram.programId);
 
   await registryProgram.methods
     .initializeHand(proofA, proofB, proofC, publicSignals, [...nullifier] as any)
     .accounts({
       authority: owner.publicKey,
-      hand: handPda,
+      hand: writPda,
       nullifierRecord: nullifierPda,
       systemProgram: SystemProgram.programId,
       clock: SYSVAR_CLOCK_PUBKEY,
@@ -86,7 +86,7 @@ async function createHandIdentity(
     .signers([owner])
     .rpc();
 
-  return { owner, handPda };
+  return { owner, writPda };
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────
@@ -95,23 +95,23 @@ describe("delegation", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const registryProgram = anchor.workspace.HandRegistry as Program;
+  const registryProgram = anchor.workspace.WritRegistry as Program;
   const delegationProgram = anchor.workspace.Delegation as Program;
 
   let handOwner: Keypair;
-  let handPda: PublicKey;
+  let writPda: PublicKey;
 
   before(async () => {
-    const identity = await createHandIdentity(provider, registryProgram);
+    const identity = await createWritIdentity(provider, registryProgram);
     handOwner = identity.owner;
-    handPda = identity.handPda;
+    writPda = identity.writPda;
   });
 
   describe("delegate", () => {
     it("creates delegation with full scope", async () => {
       const agent = Keypair.generate();
       const [delegationPda] = findDelegationPda(
-        handPda,
+        writPda,
         agent.publicKey,
         delegationProgram.programId,
       );
@@ -130,7 +130,7 @@ describe("delegation", () => {
         .delegate(scope)
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           agent: agent.publicKey,
           delegation: delegationPda,
           systemProgram: SystemProgram.programId,
@@ -146,7 +146,7 @@ describe("delegation", () => {
       assert.isTrue(delegationAccount.active, "Delegation should be active");
       assert.equal(
         delegationAccount.hand.toBase58(),
-        handPda.toBase58(),
+        writPda.toBase58(),
         "Delegation must reference the correct Hand",
       );
       assert.equal(
@@ -166,7 +166,7 @@ describe("delegation", () => {
       );
 
       // Verify hand delegations_count was incremented
-      const handAccount = await registryProgram.account.hand.fetch(handPda);
+      const handAccount = await registryProgram.account.hand.fetch(writPda);
       assert.equal(
         handAccount.delegationsCount,
         1,
@@ -177,7 +177,7 @@ describe("delegation", () => {
     it("creates delegation with restricted scope", async () => {
       const agent = Keypair.generate();
       const [delegationPda] = findDelegationPda(
-        handPda,
+        writPda,
         agent.publicKey,
         delegationProgram.programId,
       );
@@ -203,7 +203,7 @@ describe("delegation", () => {
         .delegate(scope)
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           agent: agent.publicKey,
           delegation: delegationPda,
           systemProgram: SystemProgram.programId,
@@ -240,7 +240,7 @@ describe("delegation", () => {
     it("updates delegation scope", async () => {
       const agent = Keypair.generate();
       const [delegationPda] = findDelegationPda(
-        handPda,
+        writPda,
         agent.publicKey,
         delegationProgram.programId,
       );
@@ -259,7 +259,7 @@ describe("delegation", () => {
         .delegate(initialScope)
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           agent: agent.publicKey,
           delegation: delegationPda,
           systemProgram: SystemProgram.programId,
@@ -282,7 +282,7 @@ describe("delegation", () => {
         .updateScope(updatedScope)
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           delegation: delegationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -315,7 +315,7 @@ describe("delegation", () => {
     it("revokes delegation", async () => {
       const agent = Keypair.generate();
       const [delegationPda] = findDelegationPda(
-        handPda,
+        writPda,
         agent.publicKey,
         delegationProgram.programId,
       );
@@ -333,7 +333,7 @@ describe("delegation", () => {
         .delegate(scope)
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           agent: agent.publicKey,
           delegation: delegationPda,
           systemProgram: SystemProgram.programId,
@@ -343,14 +343,14 @@ describe("delegation", () => {
         .rpc();
 
       // Capture count before revocation
-      const handBefore = await registryProgram.account.hand.fetch(handPda);
+      const handBefore = await registryProgram.account.hand.fetch(writPda);
       const countBefore = handBefore.delegationsCount;
 
       await delegationProgram.methods
         .revokeDelegation()
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           delegation: delegationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -366,7 +366,7 @@ describe("delegation", () => {
       );
 
       // Verify delegations_count was decremented on the Hand
-      const handAfter = await registryProgram.account.hand.fetch(handPda);
+      const handAfter = await registryProgram.account.hand.fetch(writPda);
       assert.equal(
         handAfter.delegationsCount,
         countBefore - 1,
@@ -378,16 +378,16 @@ describe("delegation", () => {
   describe("edge cases", () => {
     it("rejects delegation for inactive hand", async () => {
       // Create a hand then revoke it
-      const identity = await createHandIdentity(provider, registryProgram);
+      const identity = await createWritIdentity(provider, registryProgram);
       const revokedOwner = identity.owner;
-      const revokedHandPda = identity.handPda;
+      const revokedWritPda = identity.writPda;
 
       // Revoke via protocol authority
       await registryProgram.methods
         .revokeHand()
         .accounts({
           protocolAuthority: provider.wallet.publicKey,
-          hand: revokedHandPda,
+          hand: revokedWritPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
         .rpc();
@@ -395,7 +395,7 @@ describe("delegation", () => {
       // Attempt delegation on the now-inactive hand
       const agent = Keypair.generate();
       const [delegationPda] = findDelegationPda(
-        revokedHandPda,
+        revokedWritPda,
         agent.publicKey,
         delegationProgram.programId,
       );
@@ -414,7 +414,7 @@ describe("delegation", () => {
           .delegate(scope)
           .accounts({
             handOwner: revokedOwner.publicKey,
-            hand: revokedHandPda,
+            hand: revokedWritPda,
             agent: agent.publicKey,
             delegation: delegationPda,
             systemProgram: SystemProgram.programId,
@@ -425,10 +425,10 @@ describe("delegation", () => {
 
         assert.fail("Expected delegation on inactive hand to fail");
       } catch (err: any) {
-        // The constraint `hand.active @ HandNotActive` should fire
+        // The constraint `hand.active @ WritNotActive` should fire
         const errMsg = err.toString();
         assert.ok(
-          errMsg.includes("HandNotActive") || errMsg.includes("Error"),
+          errMsg.includes("WritNotActive") || errMsg.includes("Error"),
           "Error should indicate hand is not active",
         );
       }
@@ -436,9 +436,9 @@ describe("delegation", () => {
 
     it("rejects exceeding max delegations", async () => {
       // Create a fresh hand so we control the delegation count from zero
-      const identity = await createHandIdentity(provider, registryProgram);
+      const identity = await createWritIdentity(provider, registryProgram);
       const owner = identity.owner;
-      const hPda = identity.handPda;
+      const hPda = identity.writPda;
 
       // Create MAX_DELEGATIONS (5) delegations — all should succeed
       const agents: Keypair[] = [];

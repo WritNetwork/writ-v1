@@ -21,14 +21,14 @@ export {
 } from "./types.js";
 
 export type {
-  HandAccount,
+  WritAccount,
   DelegationScope,
   DelegationAccount,
   ReputationAccount,
   DisputeAccount,
   ReporterAccount,
   VerifyResult,
-  MintHandParams,
+  MintWritParams,
   DelegateParams,
   UpdateScopeParams,
   ConsumeParams,
@@ -36,8 +36,8 @@ export type {
 } from "./types.js";
 
 export {
-  HandProtocolError,
-  HandNotFoundError,
+  WritProtocolError,
+  WritNotFoundError,
   DelegationNotFoundError,
   ReputationNotFoundError,
   InvalidProofError,
@@ -47,7 +47,7 @@ export {
 } from "./errors.js";
 
 export {
-  findHandPda,
+  findWritPda,
   findNullifierPda,
   findDelegationPda,
   findReputationPda,
@@ -58,14 +58,14 @@ export {
 export {
   anchorDiscriminator,
   anchorAccountDiscriminator,
-  serializeMintHandIx,
+  serializeMintWritIx,
   serializeDelegateIx,
   serializeUpdateScopeIx,
   serializeRevokeDelegationIx,
   serializeConsumeIx,
   serializeInitializeReputationIx,
   serializeOpenDisputeIx,
-  deserializeHandAccount,
+  deserializeWritAccount,
   deserializeDelegationAccount,
   deserializeReputationAccount,
   deserializeDisputeAccount,
@@ -82,6 +82,6 @@ export {
   calculateReputationScore,
 } from "./utils.js";
 
-export { HandProtocol } from "./client.js";
-export type { HandProgramIds } from "./client.js";
+export { WritProtocol } from "./client.js";
+export type { WritProgramIds } from "./client.js";
 // Re-export version for consumers

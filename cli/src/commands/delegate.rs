@@ -86,7 +86,7 @@ pub async fn handle(args: DelegateArgs) -> Result<(), Box<dyn std::error::Error>
     let keypair = load_keypair(&config)?;
     let rpc = RpcClient::new(&config.rpc_url);
     let delegation_id = config.program_ids.delegation_pubkey()?;
-    let registry_id = config.program_ids.hand_registry_pubkey()?;
+    let registry_id = config.program_ids.writ_registry_pubkey()?;
 
     let agent: Pubkey = args
         .agent

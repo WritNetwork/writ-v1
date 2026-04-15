@@ -1,6 +1,6 @@
 # @writnetwork/sdk
 
-TypeScript SDK for HAND Protocol — anonymous KYA (Know Your Agent) on Solana.
+TypeScript SDK for WRIT Protocol — anonymous KYA (Know Your Agent) on Solana.
 
 ## Installation
 
@@ -17,18 +17,18 @@ npm run build
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import {
-  HandProtocol,
+  WritProtocol,
   parseActions,
   parseDuration,
   solToLamports,
 } from "@writnetwork/sdk";
 
 const connection = new Connection("https://api.mainnet-beta.solana.com");
-const hand = new HandProtocol(connection, {
-  handRegistry: new PublicKey("HANDreg..."),
+const hand = new WritProtocol(connection, {
+  writRegistry: new PublicKey("HANDreg..."),
   delegation: new PublicKey("HANDdel..."),
   reputation: new PublicKey("HANDrep..."),
-  handGate: new PublicKey("HANDgate..."),
+  writGate: new PublicKey("HANDgate..."),
 });
 
 // 1. Mint a HAND identity
@@ -36,7 +36,7 @@ const owner = Keypair.generate();
 const nullifier = Buffer.alloc(32); // from ZK circuit
 const proof = Buffer.alloc(64);     // from ZK prover
 
-await hand.mintHand({ nullifier, proof }, owner);
+await hand.mintWrit({ nullifier, proof }, owner);
 
 // 2. Delegate to an AI agent
 const agentKey = Keypair.generate().publicKey;
@@ -61,12 +61,12 @@ console.log(result.allowedActions);   // bitflags
 
 ## API Reference
 
-### HandProtocol
+### WritProtocol
 
 | Method | Params | Returns |
 |---|---|---|
-| `mintHand` | `MintHandParams, Keypair` | `TransactionSignature` |
-| `getHand` | `PublicKey` | `HandAccount \| null` |
+| `mintWrit` | `MintWritParams, Keypair` | `TransactionSignature` |
+| `getHand` | `PublicKey` | `WritAccount \| null` |
 | `hasHand` | `PublicKey` | `boolean` |
 | `delegate` | `DelegateParams, Keypair` | `TransactionSignature` |
 | `updateScope` | `UpdateScopeParams, Keypair` | `TransactionSignature` |
@@ -85,7 +85,7 @@ console.log(result.allowedActions);   // bitflags
 
 | Function | Seeds |
 |---|---|
-| `findHandPda(authority, programId)` | `["hand", authority]` |
+| `findWritPda(authority, programId)` | `["hand", authority]` |
 | `findNullifierPda(nullifier, programId)` | `["nullifier", nullifier]` |
 | `findDelegationPda(hand, agent, programId)` | `["delegation", hand, agent]` |
 | `findReputationPda(hand, programId)` | `["reputation", hand]` |
@@ -107,21 +107,21 @@ console.log(result.allowedActions);   // bitflags
 ### Types
 
 ```typescript
-HandAccount { authority, nullifier, mint, verifiedAt, delegationsCount, active, bump }
+WritAccount { authority, nullifier, mint, verifiedAt, delegationsCount, active, bump }
 DelegationAccount { hand, agent, scope, delegatedAt, lastConsumedAt, active, bump }
 DelegationScope { allowedPrograms, maxLamportsPerTx, maxLamportsTotal, spentLamports, expiresAt, allowedActions }
 ReputationAccount { hand, totalActions, successfulActions, totalVolumeLamports, disputesReceived, disputesLost, score, lastUpdated, createdAt, bump }
 DisputeAccount { agent, challenger, hand, evidenceUri, stakeLamports, status, createdAt, resolvedAt, bump }
 ReporterAccount { programId, authorizedBy, reportsSubmitted, registeredAt, active, bump }
-VerifyResult { isValid, handKey, reputationScore, delegatedAt, expiresAt, allowedActions }
+VerifyResult { isValid, writKey, reputationScore, delegatedAt, expiresAt, allowedActions }
 DisputeStatus { Pending, Upheld, Rejected }
 ```
 
 ### Error Classes
 
-All extend `HandProtocolError`:
+All extend `WritProtocolError`:
 
-- `HandNotFoundError`
+- `WritNotFoundError`
 - `DelegationNotFoundError`
 - `ReputationNotFoundError`
 - `InvalidProofError`

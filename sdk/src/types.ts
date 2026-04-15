@@ -16,7 +16,7 @@ export enum DisputeStatus {
 /* ------------------------------------------------------------------ */
 
 /** On-chain Hand account representing a verified human */
-export interface HandAccount {
+export interface WritAccount {
   authority: PublicKey;
   nullifier: number[];
   mint: PublicKey;
@@ -81,7 +81,7 @@ export interface ReporterAccount {
 
 export interface VerifyResult {
   isValid: boolean;
-  handKey: PublicKey;
+  writKey: PublicKey;
   reputationScore: number;
   delegatedAt: BN;
   expiresAt: BN;
@@ -92,7 +92,7 @@ export interface VerifyResult {
 /*  Instruction parameter types                                        */
 /* ------------------------------------------------------------------ */
 
-export interface MintHandParams {
+export interface MintWritParams {
   nullifier: Buffer;
   proof: Buffer;
 }

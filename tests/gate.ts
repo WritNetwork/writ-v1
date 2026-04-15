@@ -18,7 +18,7 @@ const ACTION_ALL = 0xffff;
 
 // ── PDA Helpers ────────────────────────────────────────────────────────────
 
-function findHandPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
+function findWritPda(authority: PublicKey, programId: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [HAND_SEED, authority.toBuffer()],
     programId,
@@ -74,7 +74,7 @@ async function setupFullAgent(
   },
 ): Promise<{
   handOwner: Keypair;
-  handPda: PublicKey;
+  writPda: PublicKey;
   agent: Keypair;
   delegationPda: PublicKey;
   reputationPda: PublicKey;
@@ -89,14 +89,14 @@ async function setupFullAgent(
 
   const { proofA, proofB, proofC, publicSignals } = generateMockProof();
   const nullifier = randomBytes(32);
-  const [handPda] = findHandPda(handOwner.publicKey, registryProgram.programId);
+  const [writPda] = findWritPda(handOwner.publicKey, registryProgram.programId);
   const [nullifierPda] = findNullifierPda(nullifier, registryProgram.programId);
 
   await registryProgram.methods
     .initializeHand(proofA, proofB, proofC, publicSignals, [...nullifier] as any)
     .accounts({
       authority: handOwner.publicKey,
-      hand: handPda,
+      hand: writPda,
       nullifierRecord: nullifierPda,
       systemProgram: SystemProgram.programId,
       clock: SYSVAR_CLOCK_PUBKEY,
@@ -105,12 +105,12 @@ async function setupFullAgent(
     .rpc();
 
   // Initialize reputation
-  const [reputationPda] = findReputationPda(handPda, reputationProgram.programId);
+  const [reputationPda] = findReputationPda(writPda, reputationProgram.programId);
   await reputationProgram.methods
     .initializeReputation()
     .accounts({
       handOwner: handOwner.publicKey,
-      hand: handPda,
+      hand: writPda,
       reputation: reputationPda,
       systemProgram: SystemProgram.programId,
       clock: SYSVAR_CLOCK_PUBKEY,
@@ -124,7 +124,7 @@ async function setupFullAgent(
       .reportAction(true, new anchor.BN(1_000_000_000))
       .accounts({
         reporter: provider.wallet.publicKey,
-        hand: handPda,
+        hand: writPda,
         reputation: reputationPda,
         clock: SYSVAR_CLOCK_PUBKEY,
       })
@@ -134,7 +134,7 @@ async function setupFullAgent(
   // Create delegation to agent
   const agent = Keypair.generate();
   const [delegationPda] = findDelegationPda(
-    handPda,
+    writPda,
     agent.publicKey,
     delegationProgram.programId,
   );
@@ -152,7 +152,7 @@ async function setupFullAgent(
     .delegate(scope)
     .accounts({
       handOwner: handOwner.publicKey,
-      hand: handPda,
+      hand: writPda,
       agent: agent.publicKey,
       delegation: delegationPda,
       systemProgram: SystemProgram.programId,
@@ -161,23 +161,23 @@ async function setupFullAgent(
     .signers([handOwner])
     .rpc();
 
-  return { handOwner, handPda, agent, delegationPda, reputationPda };
+  return { handOwner, writPda, agent, delegationPda, reputationPda };
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
-describe("hand-gate", () => {
+describe("writ-gate", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const registryProgram = anchor.workspace.HandRegistry as Program;
+  const registryProgram = anchor.workspace.WritRegistry as Program;
   const delegationProgram = anchor.workspace.Delegation as Program;
   const reputationProgram = anchor.workspace.Reputation as Program;
-  const gateProgram = anchor.workspace.HandGate as Program;
+  const gateProgram = anchor.workspace.WritGate as Program;
 
   describe("verify_agent", () => {
     it("verifies a valid agent", async () => {
-      const { handPda, agent, delegationPda, reputationPda } = await setupFullAgent(
+      const { writPda, agent, delegationPda, reputationPda } = await setupFullAgent(
         provider,
         registryProgram,
         delegationProgram,
@@ -194,7 +194,7 @@ describe("hand-gate", () => {
         .accounts({
           agent: agent.publicKey,
           delegation: delegationPda,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -216,14 +216,14 @@ describe("hand-gate", () => {
 
       const { proofA, proofB, proofC, publicSignals } = generateMockProof();
       const nullifier = randomBytes(32);
-      const [handPda] = findHandPda(handOwner.publicKey, registryProgram.programId);
+      const [writPda] = findWritPda(handOwner.publicKey, registryProgram.programId);
       const [nullifierPda] = findNullifierPda(nullifier, registryProgram.programId);
 
       await registryProgram.methods
         .initializeHand(proofA, proofB, proofC, publicSignals, [...nullifier] as any)
         .accounts({
           authority: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           nullifierRecord: nullifierPda,
           systemProgram: SystemProgram.programId,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -232,12 +232,12 @@ describe("hand-gate", () => {
         .rpc();
 
       // Init reputation for the hand
-      const [reputationPda] = findReputationPda(handPda, reputationProgram.programId);
+      const [reputationPda] = findReputationPda(writPda, reputationProgram.programId);
       await reputationProgram.methods
         .initializeReputation()
         .accounts({
           handOwner: handOwner.publicKey,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           systemProgram: SystemProgram.programId,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -248,7 +248,7 @@ describe("hand-gate", () => {
       // Random agent with no delegation
       const fakeAgent = Keypair.generate();
       const [fakeDelegationPda] = findDelegationPda(
-        handPda,
+        writPda,
         fakeAgent.publicKey,
         delegationProgram.programId,
       );
@@ -259,7 +259,7 @@ describe("hand-gate", () => {
           .accounts({
             agent: fakeAgent.publicKey,
             delegation: fakeDelegationPda,
-            hand: handPda,
+            hand: writPda,
             reputation: reputationPda,
             clock: SYSVAR_CLOCK_PUBKEY,
           })
@@ -273,7 +273,7 @@ describe("hand-gate", () => {
     });
 
     it("verifies with reputation threshold", async () => {
-      const { handPda, agent, delegationPda, reputationPda } = await setupFullAgent(
+      const { writPda, agent, delegationPda, reputationPda } = await setupFullAgent(
         provider,
         registryProgram,
         delegationProgram,
@@ -292,7 +292,7 @@ describe("hand-gate", () => {
         .accounts({
           agent: agent.publicKey,
           delegation: delegationPda,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -303,7 +303,7 @@ describe("hand-gate", () => {
 
     it("rejects agent below reputation threshold", async () => {
       // Create an agent with very low reputation (many failures)
-      const { handOwner, handPda, agent, delegationPda, reputationPda } =
+      const { handOwner, writPda, agent, delegationPda, reputationPda } =
         await setupFullAgent(
           provider,
           registryProgram,
@@ -317,7 +317,7 @@ describe("hand-gate", () => {
           .reportAction(false, new anchor.BN(100_000_000))
           .accounts({
             reporter: provider.wallet.publicKey,
-            hand: handPda,
+            hand: writPda,
             reputation: reputationPda,
             clock: SYSVAR_CLOCK_PUBKEY,
           })
@@ -328,7 +328,7 @@ describe("hand-gate", () => {
       await reputationProgram.methods
         .recalculateScore()
         .accounts({
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -345,7 +345,7 @@ describe("hand-gate", () => {
           .accounts({
             agent: agent.publicKey,
             delegation: delegationPda,
-            hand: handPda,
+            hand: writPda,
             reputation: reputationPda,
             clock: SYSVAR_CLOCK_PUBKEY,
           })
@@ -367,7 +367,7 @@ describe("hand-gate", () => {
       );
 
       // Create agent with swap-only + Jupiter-only scope
-      const { handPda, agent, delegationPda, reputationPda } = await setupFullAgent(
+      const { writPda, agent, delegationPda, reputationPda } = await setupFullAgent(
         provider,
         registryProgram,
         delegationProgram,
@@ -388,7 +388,7 @@ describe("hand-gate", () => {
         .accounts({
           agent: agent.publicKey,
           delegation: delegationPda,
-          hand: handPda,
+          hand: writPda,
           reputation: reputationPda,
           clock: SYSVAR_CLOCK_PUBKEY,
         })
@@ -403,7 +403,7 @@ describe("hand-gate", () => {
       );
 
       // Create agent with swap-only scope (no stake permission)
-      const { handPda, agent, delegationPda, reputationPda } = await setupFullAgent(
+      const { writPda, agent, delegationPda, reputationPda } = await setupFullAgent(
         provider,
         registryProgram,
         delegationProgram,
@@ -425,7 +425,7 @@ describe("hand-gate", () => {
           .accounts({
             agent: agent.publicKey,
             delegation: delegationPda,
-            hand: handPda,
+            hand: writPda,
             reputation: reputationPda,
             clock: SYSVAR_CLOCK_PUBKEY,
           })

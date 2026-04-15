@@ -2,9 +2,9 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
 use crate::constants::HAND_SEED;
-use crate::error::HandError;
+use crate::error::WritError;
 use crate::state::hand::Hand;
-use crate::HandRevoked;
+use crate::WritRevoked;
 
 #[derive(Accounts)]
 pub struct RevokeHand<'info> {
@@ -19,7 +19,7 @@ pub struct RevokeHand<'info> {
         mut,
         seeds = [HAND_SEED, hand.authority.as_ref()],
         bump = hand.bump,
-        constraint = hand.active @ HandError::HandNotActive,
+        constraint = hand.active @ WritError::WritNotActive,
     )]
     pub hand: Account<'info, Hand>,
 
@@ -30,12 +30,12 @@ pub struct RevokeHand<'info> {
 
 pub fn handler(ctx: Context<RevokeHand>) -> Result<()> {
     let clock = Clock::from_account_info(&ctx.accounts.clock)
-        .map_err(|_| HandError::ClockError)?;
+        .map_err(|_| WritError::ClockError)?;
 
     let hand = &mut ctx.accounts.hand;
     hand.active = false;
 
-    emit!(HandRevoked {
+    emit!(WritRevoked {
         hand: hand.key(),
         revoked_at: clock.unix_timestamp,
     });

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar;
 
-use hand_registry::state::hand::Hand;
+use writ_registry::state::hand::Hand;
 
 use crate::constants::{DELEGATION_SEED, MAX_ALLOWED_PROGRAMS};
 use crate::error::DelegationError;
@@ -45,7 +45,7 @@ pub fn handler(ctx: Context<UpdateScope>, new_scope: DelegationScope) -> Result<
     );
 
     let clock = Clock::from_account_info(&ctx.accounts.clock)
-        .map_err(|_| error!(DelegationError::HandNotVerified))?;
+        .map_err(|_| error!(DelegationError::WritNotVerified))?;
 
     let delegation = &mut ctx.accounts.delegation;
 

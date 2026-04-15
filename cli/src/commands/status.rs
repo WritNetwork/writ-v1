@@ -20,7 +20,7 @@ pub struct StatusArgs {
 pub async fn handle(args: StatusArgs) -> Result<(), Box<dyn std::error::Error>> {
     let config = load_config()?;
     let rpc = RpcClient::new(&config.rpc_url);
-    let registry_id = config.program_ids.hand_registry_pubkey()?;
+    let registry_id = config.program_ids.writ_registry_pubkey()?;
     let delegation_id = config.program_ids.delegation_pubkey()?;
     let reputation_id = config.program_ids.reputation_pubkey()?;
 

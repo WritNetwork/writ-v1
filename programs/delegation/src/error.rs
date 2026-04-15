@@ -3,10 +3,10 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum DelegationError {
     #[msg("The Hand identity is not active")]
-    HandNotActive,
+    WritNotActive,
 
     #[msg("The Hand identity has not been verified")]
-    HandNotVerified,
+    WritNotVerified,
 
     #[msg("This Hand has reached the maximum number of delegations")]
     TooManyDelegations,

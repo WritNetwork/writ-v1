@@ -1,5 +1,5 @@
 {
-  "name": "HAND Protocol Dev",
+  "name": "WRIT Protocol Dev",
   "image": "mcr.microsoft.com/devcontainers/rust:latest",
   "features": {
     "ghcr.io/devcontainers/features/node:1": { "version": "20" },

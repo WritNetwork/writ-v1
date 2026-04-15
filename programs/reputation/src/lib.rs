@@ -8,7 +8,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC");
 
 #[program]
 pub mod reputation {
