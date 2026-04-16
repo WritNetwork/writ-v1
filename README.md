@@ -2,71 +2,79 @@
   <img src="banner.png" alt="HAND Protocol" width="100%" />
 </p>
 
+<h1 align="center">
+  Accountable agents.<br/>
+  <sub>Anonymous humans.</sub>
+</h1>
+
 <p align="center">
-  <a href="https://github.com/WritNetwork/writ/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/WritNetwork/writ/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41" alt="CI" />
-  </a>
-  <a href="https://github.com/WritNetwork/writ/releases">
-    <img src="https://img.shields.io/github/v/release/WritNetwork/writ?style=flat-square&color=00ff41" alt="Release" />
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/github/license/WritNetwork/writ?style=flat-square&color=00ff41" alt="License" />
-  </a>
-  <a href="https://github.com/WritNetwork/writ/commits/main">
-    <img src="https://img.shields.io/github/last-commit/WritNetwork/writ?style=flat-square&color=00ff41" alt="Last Commit" />
-  </a>
-  <a href="https://github.com/WritNetwork/writ">
-    <img src="https://img.shields.io/github/stars/WritNetwork/writ?style=flat-square&color=00ff41" alt="Stars" />
-  </a>
-  <a href="https://github.com/WritNetwork/writ/issues">
-    <img src="https://img.shields.io/github/issues/WritNetwork/writ?style=flat-square&color=ff6600" alt="Issues" />
-  </a>
+  <code>v0.4.1</code> &nbsp;·&nbsp; <code>Solana devnet</code> &nbsp;·&nbsp; <code>Anchor 0.30</code> &nbsp;·&nbsp; <code>Groth16 / BN254</code>
 </p>
 
 <p align="center">
-  Anonymous KYA (Know Your Agent) protocol on Solana.
-  ZK human verification. Scoped agent delegation. On-chain reputation.
+  <a href="https://github.com/WritNetwork/writ/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/WritNetwork/writ/ci.yml?branch=main&style=flat-square&label=ci&color=c8ff00&labelColor=0a0a0a" alt="CI" /></a>
+  <a href="https://github.com/WritNetwork/writ/releases"><img src="https://img.shields.io/github/v/release/WritNetwork/writ?style=flat-square&color=c8ff00&labelColor=0a0a0a" alt="Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/WritNetwork/writ?style=flat-square&color=c8ff00&labelColor=0a0a0a" alt="License" /></a>
+  <a href="https://github.com/WritNetwork/writ/commits/main"><img src="https://img.shields.io/github/last-commit/WritNetwork/writ?style=flat-square&color=c8ff00&labelColor=0a0a0a" alt="Last Commit" /></a>
+  <a href="https://github.com/WritNetwork/writ/stargazers"><img src="https://img.shields.io/github/stars/WritNetwork/writ?style=flat-square&color=c8ff00&labelColor=0a0a0a" alt="Stars" /></a>
+  <a href="https://x.com/writnetwork"><img src="https://img.shields.io/badge/x-@writnetwork-c8ff00?style=flat-square&labelColor=0a0a0a" alt="X" /></a>
+  <a href="https://writ.network"><img src="https://img.shields.io/badge/web-writ.network-c8ff00?style=flat-square&labelColor=0a0a0a" alt="Website" /></a>
 </p>
 
----
+<p align="center"><sub><code>─────────────────────────────────────────────────────────────</code></sub></p>
 
-HAND Protocol gives AI agents a verifiable link to their human operator without exposing who that human is. It combines zero-knowledge identity proofs, programmable delegation scopes, and a behavior-based reputation engine into a single composable stack that any Solana program can gate against in one CPI call.
+<table align="center" width="100%">
+  <tr>
+    <td align="center" width="25%"><h2><code>4</code></h2><sub><b>PROGRAMS</b></sub></td>
+    <td align="center" width="25%"><h2><code>1</code></h2><sub><b>CPI TO VERIFY</b></sub></td>
+    <td align="center" width="25%"><h2><code>0</code></h2><sub><b>BIOMETRICS</b></sub></td>
+    <td align="center" width="25%"><h2><code>∞</code></h2><sub><b>AGENTS</b></sub></td>
+  </tr>
+</table>
 
-Built with Rust, Anchor 0.30, ark-bn254, and TypeScript.
+<p align="center"><sub><code>─────────────────────────────────────────────────────────────</code></sub></p>
 
-## Features
+## §1 &nbsp; The gap
 
-| Component | Description | Status |
-|---|---|---|
-| Hand Registry | ZK Groth16 human verification with nullifier-based sybil prevention | Stable |
-| Delegation | Scoped permission transfer with per-tx/lifetime budgets and expiry | Stable |
-| Reputation | On-chain scoring from reported actions with stake-based disputes | Stable |
-| Hand Gate | CPI interface for external programs to verify agents in one call | Stable |
-| TypeScript SDK | Full client library for all protocol operations | Stable |
-| CLI | Command-line tool for minting, delegating, verifying, and disputes | Stable |
+Solana agents already trade, bridge, and pay &mdash; right now. Every one of them is anonymous. Counterparties cannot tell whether a wallet is backed by a human with reputational skin in the game, or by code with no owner and nothing to lose. Protocols that want to gate access &mdash; liquidity pools, airdrops, lending markets, matchmaking &mdash; have no on-chain primitive to check this.
 
-## Architecture
+HAND is that primitive.
 
-Four on-chain programs form a layered verification stack. External protocols only ever touch the top layer (`hand_gate`), which reads from the three layers below it in a single cross-program invocation.
+```
+┌─ What HAND answers in one CPI ──────────────────────────────┐
+│                                                             │
+│   ( 1 )   Is a real human behind this wallet?               │
+│   ( 2 )   What is this agent allowed to do?                 │
+│   ( 3 )   Has this agent earned trust over time?            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-### Program stack
+No biometrics. No cameras. No off-chain dependency. Just cryptography.
 
-| Layer | Program | Role | Reads from | State |
-|---|---|---|---|---|
-| L4 | `hand_gate` | Single verification entrypoint. Returns `AgentStatus` in one CPI. | L1, L2, L3 | stateless |
-| L3 | `reputation` | 0–10,000 score from on-chain behavior. Stake-based dispute resolution. | — | `ReputationAccount` PDA |
-| L2 | `delegation` | Scoped permission boundaries (program whitelist, budget cap, expiry). | L1 | `DelegationScope` PDA |
-| L1 | `hand_registry` | ZK Groth16 (BN254) proof verification. Poseidon nullifier. Token-2022 SBT mint. | — | `HandAccount` PDA, nullifier set |
+## §2 &nbsp; Architecture
 
-### Call flow
+Four on-chain programs form a layered verification stack. External protocols only ever touch the top layer (`hand_gate`), which reads from the three layers below in a single cross-program invocation.
+
+<table>
+  <thead>
+    <tr><th align="left">Layer</th><th align="left">Program</th><th align="left">Role</th><th align="left">State</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>L4</code></td><td><code>hand_gate</code></td><td>Single verification entrypoint. Returns <code>AgentStatus</code> in one CPI.</td><td>stateless</td></tr>
+    <tr><td><code>L3</code></td><td><code>reputation</code></td><td>0&ndash;10,000 score from on-chain behavior. Stake-based disputes.</td><td><code>ReputationAccount</code></td></tr>
+    <tr><td><code>L2</code></td><td><code>delegation</code></td><td>Scoped permissions: program whitelist, budget cap, expiry.</td><td><code>DelegationScope</code></td></tr>
+    <tr><td><code>L1</code></td><td><code>hand_registry</code></td><td>ZK Groth16 (BN254) proof verification. Poseidon nullifier. Token-2022 SBT.</td><td><code>HandAccount</code></td></tr>
+  </tbody>
+</table>
 
 ```mermaid
 flowchart TD
-    ext["external_program::protected_ix<br/>(liquidity pool · lending · airdrop)"]
-    gate["<b>hand_gate</b> &nbsp;·&nbsp; L4<br/>returns AgentStatus { is_valid, scope, score }"]
-    reg["<b>hand_registry</b> &nbsp;·&nbsp; L1<br/>ZK verify · SBT mint · nullifier"]
-    del["<b>delegation</b> &nbsp;·&nbsp; L2<br/>scope · budget · expiry"]
-    rep["<b>reputation</b> &nbsp;·&nbsp; L3<br/>score · age bonus · disputes"]
+    ext["external_program::protected_ix<br/><sub>liquidity pool · lending · airdrop</sub>"]
+    gate["<b>hand_gate</b> · L4<br/><sub>returns AgentStatus</sub>"]
+    reg["<b>hand_registry</b> · L1<br/><sub>ZK verify · SBT · nullifier</sub>"]
+    del["<b>delegation</b> · L2<br/><sub>scope · budget · expiry</sub>"]
+    rep["<b>reputation</b> · L3<br/><sub>score · age · disputes</sub>"]
 
     ext -- "CPI: verify_agent" --> gate
     gate -- "read PDA" --> reg
@@ -78,99 +86,44 @@ flowchart TD
     classDef layer fill:#0a0a0a,stroke:#c8ff00,stroke-width:1px,color:#e8e8e8
     classDef root fill:#0a0a0a,stroke:#888,stroke-width:1px,color:#e8e8e8
     class gate,del,rep layer
-    class reg root
-    class ext root
+    class reg,ext root
 ```
 
 ### Design properties
 
-- **Single CPI surface.** Any Solana program integrates by calling `hand_gate::verify_agent` once. The returned `AgentStatus` struct is all that's needed to gate an instruction.
+- **Single CPI surface.** Any Solana program gates an instruction by calling `hand_gate::verify_agent` once.
 - **No off-chain dependency.** All state is on-chain. No oracle, no relayer, no trusted fetcher.
-- **No circular dependencies.** Call graph flows top-down (L4 → L1/L2/L3). L1 is the root of trust; L2 and L3 read it but never the other way around.
-- **Budget-aware.** The full four-program verification runs inside the Solana 200k compute-unit budget.
-- **Failure modes are explicit.** `AgentStatus.is_valid` is false when the Hand is revoked, the delegation expired, the budget is exhausted, or the score dropped below the caller-supplied threshold. Callers branch on a single boolean.
+- **No circular dependencies.** L4 reads L1/L2/L3. L2 and L3 read L1. L1 reads nothing.
+- **Budget-aware.** Full four-program verification fits inside the Solana 200k compute-unit budget.
+- **Explicit failure modes.** `AgentStatus.is_valid` is a single boolean: true if and only if the Hand exists, the delegation is unrevoked and unexpired, the budget is not exhausted, and the score clears the caller's threshold.
 
-## Deployments
+## §3 &nbsp; The one call
 
-Deployed to Solana devnet. All four programs are upgradeable under the `BPFLoaderUpgradeab1e...` program and verifiable via RPC.
+```rust
+use hand_gate::{cpi, cpi::accounts::VerifyAgentAccounts};
 
-| Program | Devnet Address | Explorer |
-|---|---|---|
-| `hand_gate` | `3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M` | [view](https://explorer.solana.com/address/3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M?cluster=devnet) |
-| `reputation` | `F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC` | [view](https://explorer.solana.com/address/F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC?cluster=devnet) |
-| `delegation` | `EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK` | [view](https://explorer.solana.com/address/EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK?cluster=devnet) |
-| `hand_registry` | `FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk` | [view](https://explorer.solana.com/address/FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk?cluster=devnet) |
+pub fn sensitive_swap(ctx: Context<SensitiveSwap>, amount_in: u64) -> Result<()> {
+    // One CPI. One branch. No off-chain dependency.
+    let status = cpi::verify_agent(
+        CpiContext::new(ctx.accounts.hand_gate_program.to_account_info(), VerifyAgentAccounts {
+            delegation: ctx.accounts.delegation.to_account_info(),
+            hand: ctx.accounts.hand.to_account_info(),
+            clock: ctx.accounts.clock.to_account_info(),
+        }),
+        ctx.accounts.agent.key(),
+    )?;
 
-Mainnet deployment is pending an external audit.
+    require!(status.is_valid, ErrorCode::NotHumanBacked);
+    require!(status.score >= 500, ErrorCode::InsufficientReputation);
+    require!(status.scope.allows(&ctx.program_id, amount_in), ErrorCode::OutOfScope);
 
-## How It Works
-
-1. A human proves their identity through a ZK proof (no biometric data, no personal information on-chain)
-2. The protocol mints a non-transferable Hand SBT to their wallet
-3. The human delegates their Hand to AI agents with scoped permissions
-4. Other programs verify agents via Hand Gate CPI before allowing actions
-
-No biometric scanners. No cameras. No hardware. A nullifier is the only artifact stored on-chain, and it cannot be reversed to identify the human.
-
-## Performance
-
-| Operation | Compute Units | Latency |
-|---|---|---|
-| Mint Hand (with ZK verify) | ~120,000 | ~400ms |
-| Create Delegation | ~25,000 | ~400ms |
-| Consume (budget check) | ~15,000 | ~400ms |
-| Verify Agent (CPI) | ~8,000 | ~400ms |
-| Report Action | ~12,000 | ~400ms |
-| Open Dispute | ~20,000 | ~400ms |
-
-All operations fit within Solana's default 200,000 CU limit per instruction.
-
-## Build
-
-```bash
-git clone https://github.com/WritNetwork/writ.git
-cd hand
-cargo check --workspace
+    //  proceed with privileged logic
+    Ok(())
+}
 ```
 
-SDK:
-
-```bash
-cd sdk
-npm install
-npm run build
-```
-
-CLI:
-
-```bash
-cargo build --release -p hand-cli
-./target/release/hand --help
-```
-
-## Quick Start
-
-### Mint a Hand (CLI)
-
-```bash
-hand mint --proof-file proof.json
-# Output: Hand minted at 7xKq...3nF
-```
-
-### Delegate to an Agent (CLI)
-
-```bash
-hand delegate \
-  --agent BotW...5kP \
-  --programs JUP4...QJ1 \
-  --max-sol-per-tx 2 \
-  --max-sol-total 50 \
-  --expires 72h \
-  --actions swap
-# Output: Delegation created for agent BotW...5kP
-```
-
-### Verify an Agent (SDK)
+<details>
+<summary><b>TypeScript — same verification, client-side</b></summary>
 
 ```typescript
 import { HandProtocol } from "@writnetwork/sdk";
@@ -179,112 +132,124 @@ import { Connection, PublicKey } from "@solana/web3.js";
 const connection = new Connection("https://api.devnet.solana.com");
 const hand = new HandProtocol(connection, {
   handRegistry: new PublicKey("FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk"),
-  delegation: new PublicKey("EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK"),
-  reputation: new PublicKey("F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC"),
-  handGate: new PublicKey("3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"),
+  delegation:   new PublicKey("EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK"),
+  reputation:   new PublicKey("F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC"),
+  handGate:     new PublicKey("3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M"),
 });
 
-const result = await hand.verifyAgent(agentPublicKey);
-// { isValid: true, handKey: "7xKq...", reputationScore: 8200, delegatedAt: 1713024000, expiresAt: 1713283200, allowedActions: 1 }
+const status = await hand.verifyAgent(agentPublicKey);
+// { isValid: true, handKey: "7xKq...", reputationScore: 8200,
+//   delegatedAt: 1713024000, expiresAt: 1713283200, allowedActions: 1 }
 ```
 
-### Gate Your Program (Rust CPI)
+</details>
 
-```rust
-use hand_gate::cpi::accounts::VerifyAgentAccounts;
-use hand_gate::cpi::verify_agent;
+<details>
+<summary><b>CLI — mint, delegate, verify from the terminal</b></summary>
 
-pub fn protected_action(ctx: Context<ProtectedAction>) -> Result<()> {
-    let cpi_ctx = CpiContext::new(
-        ctx.accounts.hand_gate_program.to_account_info(),
-        VerifyAgentAccounts {
-            delegation: ctx.accounts.delegation.to_account_info(),
-            hand: ctx.accounts.hand.to_account_info(),
-            clock: ctx.accounts.clock.to_account_info(),
-        },
-    );
-    verify_agent(cpi_ctx, ctx.accounts.agent.key())?;
-
-    // Agent verified. Proceed with business logic.
-    Ok(())
-}
+```bash
+hand mint       --keypair ~/.config/solana/id.json --cluster devnet
+hand delegate   --agent BotW...5kP --max-sol 10 --expires 2026-12-31 --actions swap,stake
+hand verify     --agent BotW...5kP
+# Output: is_valid=true  score=8200  scope=[swap,stake]  expires=1713283200
 ```
 
-## Delegation Scope
+</details>
 
-| Field | Type | Purpose |
-|---|---|---|
-| allowed_programs | Vec\<Pubkey\> | Whitelist of programs. Empty = no restriction. |
-| max_lamports_per_tx | u64 | Per-transaction spending cap |
-| max_lamports_total | u64 | Lifetime spending cap |
-| expires_at | i64 | Unix timestamp. 0 = no expiry. |
-| allowed_actions | u16 | Bitflags: SWAP=1, STAKE=2, TRANSFER=4, VOTE=8, MINT=16 |
+## §4 &nbsp; Deployments
 
-## Reputation Scoring
+<table>
+  <thead><tr><th align="left">Program</th><th align="left">Devnet Program ID</th><th align="center">Explorer</th></tr></thead>
+  <tbody>
+    <tr><td><code>hand_gate</code></td><td><code>3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M</code></td><td align="center"><a href="https://explorer.solana.com/address/3tpfhT2m1vF7FCLsGazbEPFRiRnjgwk2CnC3yeonas7M?cluster=devnet">↗</a></td></tr>
+    <tr><td><code>reputation</code></td><td><code>F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC</code></td><td align="center"><a href="https://explorer.solana.com/address/F8yFcvoXpupNahzJ2wSKDBErqKgmE7ws1gVVtdAq33FC?cluster=devnet">↗</a></td></tr>
+    <tr><td><code>delegation</code></td><td><code>EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK</code></td><td align="center"><a href="https://explorer.solana.com/address/EnoPMLDuLo33PUvYBekpaTzyembPuZD82PAcv3qvRFxK?cluster=devnet">↗</a></td></tr>
+    <tr><td><code>hand_registry</code></td><td><code>FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk</code></td><td align="center"><a href="https://explorer.solana.com/address/FrEcFzPx9zqooVp1GmkMdiNXkpgcx3UJRN97YUR9MFTk?cluster=devnet">↗</a></td></tr>
+  </tbody>
+</table>
+
+Mainnet deployment pending external audit.
+
+## §5 &nbsp; Reputation scoring
 
 ```
-base       = (successful_actions / total_actions) * 10000
-penalty    = disputes_lost * 500
-age_bonus  = min(days_active * 10, 1000)
-score      = clamp(base - penalty + age_bonus, 0, 10000)
+base       = (successful_actions / total_actions) × 10000
+penalty    = disputes_lost × 500
+age_bonus  = min(days_active × 10, 1000)
+score      = clamp(base − penalty + age_bonus, 0, 10000)
 ```
 
-Other programs can gate on reputation:
+Any program can gate on reputation:
 
 ```rust
 #[hand_gated(min_reputation = 5000)]
-pub fn quality_gate(ctx: Context<X>) -> Result<()> { ... }
+pub fn quality_gate(ctx: Context<X>) -> Result<()> { /* ... */ }
 ```
 
-## Risk Assessment
+## §6 &nbsp; Delegation scope
 
-| Threat | Mitigation | Residual Risk |
-|---|---|---|
-| Bought social accounts | Account age + follower threshold filters 90%+ | Low |
-| Nullifier rainbow attack | Poseidon hash with user secret prevents precomputation | Negligible |
-| Agent exceeds scope | On-chain budget enforcement via consume() | None (enforced) |
-| Malicious agent behavior | Stake-based dispute system with reputation penalty | Medium |
-| Verification key compromise | Trusted setup ceremony; key embedded in program binary | Low |
+<table>
+  <thead><tr><th align="left">Field</th><th align="left">Type</th><th align="left">Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>allowed_programs</code></td><td><code>Vec&lt;Pubkey&gt;</code></td><td>Whitelist. Empty = no restriction.</td></tr>
+    <tr><td><code>max_lamports_per_tx</code></td><td><code>u64</code></td><td>Per-transaction spending cap</td></tr>
+    <tr><td><code>max_lamports_total</code></td><td><code>u64</code></td><td>Lifetime spending cap</td></tr>
+    <tr><td><code>expires_at</code></td><td><code>i64</code></td><td>Unix timestamp. 0 = no expiry.</td></tr>
+    <tr><td><code>allowed_actions</code></td><td><code>u16</code></td><td>Bitflags: <code>SWAP=1 STAKE=2 TRANSFER=4 VOTE=8 MINT=16</code></td></tr>
+  </tbody>
+</table>
 
-## Project Structure
+## §7 &nbsp; Build
+
+```bash
+git clone https://github.com/WritNetwork/writ.git
+cd writ
+anchor build
+anchor test
+```
+
+Requires: Rust 1.78+, Solana CLI 1.18.26, Anchor 0.30.1, Node 20+.
+
+## §8 &nbsp; Threat model
+
+<table>
+  <thead><tr><th align="left">Threat</th><th align="left">Mitigation</th><th align="center">Residual</th></tr></thead>
+  <tbody>
+    <tr><td>Nullifier rainbow attack</td><td>Poseidon hash with per-user secret; no precomputation</td><td align="center"><code>negligible</code></td></tr>
+    <tr><td>Agent exceeds scope</td><td>On-chain budget enforcement via <code>consume()</code></td><td align="center"><code>enforced</code></td></tr>
+    <tr><td>Bought social accounts</td><td>Account age + follower thresholds filter ~90%</td><td align="center"><code>low</code></td></tr>
+    <tr><td>Malicious agent behavior</td><td>Stake-based dispute system with reputation penalty</td><td align="center"><code>medium</code></td></tr>
+    <tr><td>Verification key compromise</td><td>Trusted setup ceremony; key embedded in program binary</td><td align="center"><code>low</code></td></tr>
+  </tbody>
+</table>
+
+## §9 &nbsp; Repository map
 
 ```
 writ/
-  programs/
-    hand-registry/       ZK verification + SBT minting
-      instructions/      initialize_hand, revoke_hand
-      state/             Hand, NullifierRecord, verifier
-    delegation/          Scoped permission delegation
-      instructions/      delegate, update_scope, revoke_delegation, consume
-      state/             Delegation, DelegationScope
-    reputation/          Behavior tracking + disputes
-      instructions/      initialize, report_action, register_reporter, dispute, recalculate
-      state/             Reputation, Dispute, Reporter
-    hand-gate/           CPI verification interface
-      instructions/      verify_agent, verify_with_reputation, verify_with_scope
-      state/             VerifyResult
-  sdk/                   TypeScript client library
-    src/                 client, types, pda, serialization, utils, errors
-  cli/                   Rust command-line tool
-    src/commands/        mint, delegate, revoke, verify, reputation, dispute, status, config
-  tests/                 Anchor integration tests
-  examples/              Usage examples (mint, delegate, verify, gate integration, SDK quickstart)
-  docs/                  Architecture, ZK verification, delegation scopes, integration guide
-  idl/                   Anchor IDL JSON for all 4 programs
+├─ programs/
+│  ├─ hand-registry/    L1  ZK verification · SBT minting
+│  ├─ delegation/       L2  scoped permissions · budget · expiry
+│  ├─ reputation/       L3  scoring · disputes · reporters
+│  └─ hand-gate/        L4  CPI verification interface
+├─ sdk/                     TypeScript client library
+├─ cli/                     Rust command-line tool
+├─ tests/                   Anchor integration tests
+├─ examples/                Usage scripts
+├─ docs/                    Architecture · ZK · delegation · integration
+└─ idl/                     Anchor IDL JSON
 ```
 
-## Contributing
+<p align="center"><sub><code>─────────────────────────────────────────────────────────────</code></sub></p>
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style, and PR guidelines.
+<table align="center" width="100%">
+  <tr>
+    <td align="center"><a href="https://writ.network">writ.network</a></td>
+    <td align="center"><a href="https://x.com/writnetwork">@writnetwork</a></td>
+    <td align="center"><a href="CONTRIBUTING.md">Contributing</a></td>
+    <td align="center"><a href="SECURITY.md">Security</a></td>
+    <td align="center"><a href="LICENSE">MIT License</a></td>
+  </tr>
+</table>
 
-## License
-
-[MIT](LICENSE)
-
-## Links
-
-- Website: https://handprotocol.xyz
-- X: @handprotocol
-- GitHub: https://github.com/WritNetwork/writ
-- Docs: https://handprotocol.xyz/docs
-
+<p align="center"><sub>Built with Rust, Anchor 0.30, ark-bn254, TypeScript. Single-author. Solana-native.</sub></p>
